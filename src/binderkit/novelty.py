@@ -150,6 +150,7 @@ def gate(
     cfg: NoveltyConfig,
     references: list[Reference],
     structure_tm: dict[str, tuple[float, str]] | None = None,
+    db_hits: dict | None = None,
 ) -> pd.DataFrame:
     """Apply the novelty gate. Returns the `novelty` schema.
 
@@ -166,6 +167,12 @@ def gate(
     `structure_tm` maps design_id -> (best TM, hit). When it is None the
     structural arm of the gate cannot run; `reason` says so explicitly rather
     than silently passing.
+
+    `db_hits` maps design_id -> `binderkit.search.Hit` from a real database
+    search. Where present it supersedes the reference-set screen, and it is
+    judged on **effective identity** (identity x query coverage) rather than raw
+    identity: a 9-residue local match at 77% identity is noise, and rejecting a
+    design for it would be a false positive.
     """
     al = _aligner()
     known = [r for r in references if r.is_known_binder]
@@ -186,6 +193,30 @@ def gate(
 
         reasons: list[str] = []
         passed = True
+
+        db_hit = (db_hits or {}).get(d.design_id)
+        if db_hit is not None:
+            if db_hit.significant and db_hit.effective_identity > cfg.max_seq_identity:
+                passed = False
+                reasons.append(
+                    f"REJECTED on database search: {db_hit.effective_identity:.1%} effective "
+                    f"identity to {db_hit.target} ({db_hit.identity:.1%} over "
+                    f"{db_hit.query_coverage:.0%} of the design, e={db_hit.evalue:.1e}) "
+                    f"exceeds the {cfg.max_seq_identity:.0%} cutoff"
+                )
+            elif db_hit.significant:
+                reasons.append(
+                    f"database search: best significant hit {db_hit.target} at "
+                    f"{db_hit.effective_identity:.1%} effective identity - under the cutoff"
+                )
+            else:
+                reasons.append(
+                    "database search: no significant PDB hit (best was "
+                    f"{db_hit.identity:.1%} identity over only {db_hit.query_coverage:.0%} "
+                    f"of the design, e={db_hit.evalue:.1e})"
+                )
+            if db_hit.effective_identity > best_id:
+                best_id, hit = db_hit.effective_identity, db_hit.target
 
         if known_id > cfg.known_binder_identity_cutoff:
             passed = False

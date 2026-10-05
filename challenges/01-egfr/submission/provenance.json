@@ -1,7 +1,7 @@
 {
   "run_id": "dev",
-  "generated_utc": "2026-10-05T03:29:34Z",
-  "git_commit": "ca04ac15d8a6d96e791d762af5d52f234244ae88",
+  "generated_utc": "2026-10-05T05:46:58Z",
+  "git_commit": "0855852b992ea8025b042033562590a8300f921f",
   "tool_versions": {
     "python": "3.13.14",
     "binderkit": "0.1.0",
@@ -87,7 +87,8 @@
         "affinity"
       ],
       "min_self_consistency_rmsd": 2.0,
-      "calibrated_confidence_weight": 0.0,
+      "calibrated_ipsae_threshold": 0.635,
+      "use_confidence_as_hard_filter": false,
       "diversity_aware": true
     },
     "submission": {
@@ -117,12 +118,12 @@
     "vram_mib": 8188,
     "cpu_cores": 20,
     "ram_gb": 23.7,
-    "free_disk_gb": 44.8,
+    "free_disk_gb": 40.2,
     "tier_detected": "C",
     "tier_used": "C",
     "tier_reasons": [
       "VRAM 8188 MiB = 7.996 GiB -> Tier C on the VRAM rule.",
-      "Free disk 44.8 GB is below the 50 GB guard; the tier is already C so there is nothing to drop."
+      "Free disk 40.2 GB is below the 50 GB guard; the tier is already C so there is nothing to drop."
     ]
   },
   "seeds": {
@@ -131,13 +132,14 @@
     "global": 0
   },
   "timings_seconds": {
-    "target": 0.19,
+    "target": 0.226,
     "backbones": 0.003,
-    "designs": 0.002,
+    "designs": 0.003,
     "folds": 0.002,
-    "metrics": 0.029,
-    "novelty": 0.834,
-    "objectives": 0.002
+    "metrics": 0.039,
+    "db_search": 22.824,
+    "novelty": 1.477,
+    "objectives": 0.005
   },
   "mocked_stages": [
     "generate",
@@ -147,10 +149,10 @@
   "skipped_stages": [],
   "any_mocked": true,
   "file_sha256": {
-    "challenges/01-egfr/submission/submission.csv": "d069d1ced663a1fbcd21b332d84b59fb01780d4605d66ee03b2bc1227609eec7",
-    "challenges/01-egfr/submission/metrics.csv": "b2b68aa5c4d5cd7668e783580f87fa959b4ca6ae643b330a0b317d2f519bdb82",
-    "challenges/01-egfr/submission/ranking_full.csv": "f9914547e075374866a52cc81fe0f628a79060ce1c2fd71bee36f27a55cb05f5",
-    "challenges/01-egfr/submission/novelty.csv": "526d8ee7332061d5212011a067d9ea3c99f8816ecf56ea5f886ff71229fc731d"
+    "challenges/01-egfr/submission/submission.csv": "755b25f27c453aa0ca4f11c032c21a4656efb000e516a420e6c7250a10c852cb",
+    "challenges/01-egfr/submission/metrics.csv": "e6004afa5a61fe1f4360a333a4868032f73dcb78fbe4a5df167fd12b18a5542a",
+    "challenges/01-egfr/submission/ranking_full.csv": "9f3172a18f1e662f380da236e5556d4f8e677e9c8dea7cddcaef2515ff480283",
+    "challenges/01-egfr/submission/novelty.csv": "0377886f2f0558e0c50ccbc34d7196929fffe7abce08cf20bcddbc1f45077d96"
   },
   "notes": [
     "MOCK: generate - fixture backend emits synthetic backbones with no 3D coordinates; ss_fractions are drawn from a fixed distribution, not measured",

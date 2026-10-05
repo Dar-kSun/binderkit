@@ -34,3 +34,6 @@ slurm-*.out
 
 # Private, never committed
 .private/
+
+# Local Claude Code permissions, never shared
+.claude/settings.local.json

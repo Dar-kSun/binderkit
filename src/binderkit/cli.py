@@ -167,8 +167,28 @@ def cmd_run(args: argparse.Namespace) -> int:
             "known_binder_screen",
             f"{known_path} absent, so no known binders were screened against",
         )
+    db_hits = None
+    try:
+        from binderkit import search as seq_search
+
+        if seq_search.available():
+            with prov.time("db_search"):
+                db_hits = seq_search.search(
+                    dict(zip(designs.design_id, designs.sequence, strict=True))
+                )
+            log.info("database novelty search: %d designs searched against the PDB", len(db_hits))
+        else:
+            log.warning(
+                "MMseqs2 or its PDB database is absent; the novelty gate "
+                "falls back to the reference-set screen only"
+            )
+            prov.mark_skipped("db_search", "mmseqs binary or PDB database not available")
+    except Exception as exc:  # noqa: BLE001 - a search failure must not stop the run
+        log.warning("database search failed: %s", exc)
+        prov.mark_skipped("db_search", f"{type(exc).__name__}: {exc}")
+
     with prov.time("novelty"):
-        nov = gate(designs, cfg.novelty, refs)
+        nov = gate(designs, cfg.novelty, refs, db_hits=db_hits)
     stages.write_stage(nov, cfg.work_dir, cfg.run_id, "novelty")
 
     # --- objectives / rank ---------------------------------------------

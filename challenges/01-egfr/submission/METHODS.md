@@ -32,15 +32,15 @@ Full tool versions, seeds and timings are in `provenance.json`.
 | Stage | Designs surviving |
 |---|---|
 | designs generated | 72 |
-| passed novelty gate | 70 |
-| passed all hard filters | 17 |
-| selected for submission | 17 |
+| passed novelty gate | 71 |
+| passed all hard filters | 15 |
+| selected for submission | 15 |
 
 ## Novelty results
 
-- Sequence identity to the reference set: median 12.6%, max 25.4%
+- Sequence identity to the reference set: median 14.5%, max 38.1%
 - Threshold applied: 30% general, 25% against known binders
-- Designs rejected by the gate: 2
+- Designs rejected by the gate: 1
 - **Structural novelty was not checked.** No Foldseek or TM-score comparison was available in this environment, so the structural arm of the gate did not run. Sequence novelty alone is a weaker claim.
 
 The reference set is the target, its orthologs and a curated known-binder list, not a full UniProt or PDB search. See `docs/LIMITATIONS.md`.

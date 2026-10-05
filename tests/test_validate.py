@@ -149,3 +149,37 @@ def test_validate_csv_roundtrip(tmp_path: Path) -> None:
     path = tmp_path / "submission.csv"
     frame().to_csv(path, index=False)
     assert validate_csv(path).ok
+
+
+# ---------------------------------------------------------------------------
+# Banned-term guard (docs/SPEC.md 12.3 rule 9)
+# ---------------------------------------------------------------------------
+
+
+def test_banned_terms_guard_fails_on_empty_list_when_required(tmp_path: Path) -> None:
+    """An empty term list passes everything, so `--require-non-empty` must fail.
+
+    A guard that silently does nothing is worse than no guard: it reads as
+    protection that is not there.
+    """
+    import subprocess
+    import sys
+
+    repo = Path(__file__).resolve().parents[1]
+    result = subprocess.run(
+        [sys.executable, "scripts/check_banned_terms.py", "--require-non-empty"],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    terms = repo / ".private" / "banned_terms.txt"
+    has_terms = terms.is_file() and any(
+        ln.strip() and not ln.strip().startswith("#")
+        for ln in terms.read_text(encoding="utf-8", errors="replace").splitlines()
+    )
+    if has_terms:
+        assert result.returncode == 0, result.stderr
+    else:
+        assert result.returncode == 1, "an empty list must fail --require-non-empty"
+        assert "contains no terms" in result.stderr

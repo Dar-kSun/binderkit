@@ -56,6 +56,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="pass instead of failing when the term list is absent",
     )
+    ap.add_argument(
+        "--require-non-empty",
+        action="store_true",
+        help="fail if the term list exists but has no terms (use before pushing)",
+    )
     args = ap.parse_args(argv)
 
     if not TERMS_FILE.is_file():
@@ -73,6 +78,13 @@ def main(argv: list[str] | None = None) -> int:
 
     terms = load_terms()
     if not terms:
+        if args.require_non_empty:
+            print(
+                f"ERROR: {TERMS_FILE} exists but contains no terms, so this check "
+                "passes everything. Populate it before pushing anywhere public.",
+                file=sys.stderr,
+            )
+            return 1
         print(f"warning: {TERMS_FILE} has no terms; nothing to check")
         return 0
 
