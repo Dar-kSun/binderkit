@@ -101,16 +101,36 @@ def test_report_generator_uses_the_within_group_helper() -> None:
     assert "within_group_mean_difference" in src
 
 
-def test_report_generator_never_formats_a_pooled_difference_as_a_claim() -> None:
+def test_report_prose_never_formats_a_pooled_difference_as_a_claim() -> None:
     """`.pooled` may be shown beside `.within`, never on its own.
 
-    Every line of the generator that interpolates ``.pooled`` must interpolate
-    ``.within`` too, so a pooled number cannot reach the reader unaccompanied by
-    the honest one.
+    Prose is emitted through ``w(...)``. Any such line that interpolates
+    ``.pooled`` must interpolate ``.within`` too, so a pooled number cannot
+    reach the reader unaccompanied by the honest one. The machine-readable
+    ``summary.json`` is exempt from the same-line rule and checked separately
+    below, because there the two are adjacent keys of one object.
     """
     for line in REPORT_PY.read_text(encoding="utf-8").splitlines():
-        if ".pooled" in line:
-            assert ".within" in line, f"pooled difference quoted alone: {line.strip()}"
+        stripped = line.strip()
+        if ".pooled" in stripped and stripped.startswith(("w(", 'w("', "w(f")):
+            assert ".within" in stripped, f"pooled difference quoted alone: {stripped}"
+
+
+def test_summary_json_reports_both_differences_for_every_metric() -> None:
+    """The emitted summary must never carry a pooled value without its pair."""
+    path = Path("studies/interface_geometry/summary.json")
+    if not path.is_file():
+        pytest.skip("geometry study has not been run")
+    import json
+
+    gd = json.loads(path.read_text(encoding="utf-8"))["group_differences"]
+    assert gd, "the summary must record the group differences"
+    for name, rec in gd.items():
+        assert "pooled" in rec and "within_target" in rec, name
+        assert rec["sign_flips"] is True, (
+            f"{name}: pooling no longer reverses the sign - if the data changed, "
+            "the correction narrative in CHANGEstats.md must be rechecked"
+        )
 
 
 def test_withdrawn_sentences_are_absent_from_the_generator_and_the_report() -> None:

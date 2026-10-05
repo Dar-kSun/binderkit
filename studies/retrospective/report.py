@@ -26,6 +26,7 @@ from studies.retrospective.run_study import (
     feature_columns,
     fetch_summary,
     no_target_appears_in_both_folds,
+    vendor_agreement,
 )
 
 log = logging.getLogger(__name__)
@@ -724,8 +725,9 @@ def main(force_download: bool = False) -> int:
         "calibration_spearman": a["calibration"]["spearman"],
         "top_decile_rate": a["calibration"]["top_decile_rate"],
         "n_targets_ci_includes_chance": sum(1 for t in a["per_target"] if t["includes_chance"]),
-        "vendor_agreement_ceiling": 0.890,
+        "vendor_agreement": vendor_agreement(path),
     }
+    payload["vendor_agreement_ceiling"] = payload["vendor_agreement"]["agreement"]
     (OUT / "calibration.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     pd.DataFrame(a["per_target"]).to_csv(OUT / "per_target_results.csv", index=False)
 
@@ -907,3 +909,7 @@ def make_figures(df: pd.DataFrame, a: dict) -> list[str]:
     written.append("auroc_pooled_vs_within.png")
 
     return written
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

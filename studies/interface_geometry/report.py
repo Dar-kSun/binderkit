@@ -581,6 +581,57 @@ def main() -> int:
         ]
     ).to_csv(OUT / "geometry_results.csv", index=False)
 
+    # Machine-readable summary, so downstream views (portfolio/) can assert
+    # against a file rather than scraping prose out of REPORT.md.
+    comb = a["combined"]
+    (OUT / "summary.json").write_text(
+        json.dumps(
+            {
+                "n_designs": a["n"],
+                "n_targets": a["n_targets"],
+                "base_rate": a["base_rate"],
+                "reference_metric": REFERENCE,
+                "reference_within_target_auroc": a["reference_auroc"],
+                "best_geometry_metric": a["best_geom"],
+                "best_geometry_auroc": a["alone"][a["best_geom"]],
+                "n_metrics_tested": len(GEOMETRY_ALL),
+                "n_metrics_helping": sum(
+                    1 for d in a["conditional"].values() if d.distinguishable and d.difference > 0
+                ),
+                "n_metrics_hurting": sum(
+                    1 for d in a["conditional"].values() if d.distinguishable and d.difference < 0
+                ),
+                "all_geometry_combined": {
+                    "with_geometry": comb.stat_a,
+                    "confidence_alone": comb.stat_b,
+                    "difference": comb.difference,
+                    "ci_lo": comb.ci_lo,
+                    "ci_hi": comb.ci_hi,
+                    "sign_consistency": comb.sign_consistency,
+                    "distinguishable": bool(comb.distinguishable),
+                },
+                "sidechain_subset": {
+                    "n": a["subset"]["n"],
+                    "base_rate": a["subset"]["base_rate"],
+                },
+                "group_differences": {
+                    name: {
+                        "pooled": gd.pooled,
+                        "within_target": gd.within,
+                        "n_groups_positive": gd.n_groups_positive,
+                        "n_groups": gd.n_groups,
+                        "sign_flips": bool(gd.sign_flips),
+                    }
+                    for name, gd in a["group_diffs"].items()
+                },
+                "validation": validation,
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
     log.info("wrote %s and %d figures", path, len(figs))
     print(f"\nreference {REFERENCE} = {a['reference_auroc']:.3f}")
     print(f"best geometry alone: {a['best_geom']} = {a['alone'][a['best_geom']]:.3f}")

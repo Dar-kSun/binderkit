@@ -1,0 +1,79 @@
+{
+  "n_designs": 1189,
+  "n_targets": 15,
+  "base_rate": 0.2708158116063919,
+  "reference_metric": "ipsae_mean",
+  "reference_within_target_auroc": 0.7495770837201251,
+  "best_geometry_metric": "binder_exposed_hydrophobic_sasa",
+  "best_geometry_auroc": 0.5692394915000826,
+  "n_metrics_tested": 13,
+  "n_metrics_helping": 0,
+  "n_metrics_hurting": 2,
+  "all_geometry_combined": {
+    "with_geometry": 0.700746122848325,
+    "confidence_alone": 0.7495770837201251,
+    "difference": -0.048830960871800055,
+    "ci_lo": -0.09087554622832379,
+    "ci_hi": -0.006406645290389665,
+    "sign_consistency": 0.9853333333333333,
+    "distinguishable": true
+  },
+  "sidechain_subset": {
+    "n": 193,
+    "base_rate": 0.16580310880829016
+  },
+  "group_differences": {
+    "n_atom_contacts": {
+      "pooled": -51.13018762492209,
+      "within_target": 31.18073480329225,
+      "n_groups_positive": 9,
+      "n_groups": 14,
+      "sign_flips": true
+    },
+    "bsa_binder": {
+      "pooled": -70.04369079515925,
+      "within_target": 49.280239072272124,
+      "n_groups_positive": 10,
+      "n_groups": 14,
+      "sign_flips": true
+    },
+    "bsa_total": {
+      "pooled": -136.61167387691398,
+      "within_target": 72.8401061482456,
+      "n_groups_positive": 9,
+      "n_groups": 14,
+      "sign_flips": true
+    },
+    "contact_density": {
+      "pooled": -0.547385892957235,
+      "within_target": 0.49304006602631806,
+      "n_groups_positive": 8,
+      "n_groups": 14,
+      "sign_flips": true
+    }
+  },
+  "validation": {
+    "n_compared": 981,
+    "epitope_residues": {
+      "exact_matches": 981,
+      "fraction_exact": 1.0,
+      "max_abs_diff": 0.0,
+      "mean_abs_diff": 0.0,
+      "correlation": 1.0
+    },
+    "paratope_residues": {
+      "exact_matches": 981,
+      "fraction_exact": 1.0,
+      "max_abs_diff": 0.0,
+      "mean_abs_diff": 0.0,
+      "correlation": 1.0
+    },
+    "atom_contacts": {
+      "exact_matches": 981,
+      "fraction_exact": 1.0,
+      "max_abs_diff": 0.0,
+      "mean_abs_diff": 0.0,
+      "correlation": 0.9999999999999999
+    }
+  }
+}

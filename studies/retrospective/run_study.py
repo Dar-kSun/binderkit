@@ -143,6 +143,48 @@ def build_table(path: Path) -> pd.DataFrame:
     return df
 
 
+def vendor_agreement(path: Path) -> dict:
+    """How often the two CROs called the same design the same way.
+
+    This is the ceiling on every AUROC in this study: no in-silico metric can
+    be shown to predict a label more reliably than the label predicts itself.
+    It was previously written into the report as a literal 0.890; it is
+    computed here so it is reproducible like every other number (docs/SPEC.md
+    section 12.1 rule 3).
+
+    Uses the release's own ``vendor_agreement`` column rather than recomputing
+    from the two raw calls, because the release's adjudication rubric decides
+    how ``not_expressed`` and ``inconclusive`` are handled, and reproducing
+    that by hand would be a different measurement wearing the same name.
+
+    Parameters
+    ----------
+    path
+        The cached ``design_summary.csv``.
+
+    Returns
+    -------
+    dict
+        Counts per category, the number measured by both vendors, and the
+        agreement fraction in 0-1.
+    """
+    df = pd.read_csv(path, low_memory=False)
+    counts = df["vendor_agreement"].value_counts(dropna=True).to_dict()
+    both = {str(k): int(v) for k, v in counts.items() if str(k).endswith("_bind")}
+    n = sum(both.values())
+    concordant = both.get("both_bind", 0) + both.get("neither_bind", 0)
+    return {
+        "n_measured_by_both": n,
+        "both_bind": both.get("both_bind", 0),
+        "neither_bind": both.get("neither_bind", 0),
+        "adaptyv_only_bind": both.get("adaptyv_only_bind", 0),
+        "twist_only_bind": both.get("twist_only_bind", 0),
+        "n_concordant": concordant,
+        "n_discordant": n - concordant,
+        "agreement": concordant / n if n else float("nan"),
+    }
+
+
 def feature_columns(df: pd.DataFrame) -> dict[str, str]:
     """Map feature column -> short family label, for grouping in the report."""
     feats: dict[str, str] = {}

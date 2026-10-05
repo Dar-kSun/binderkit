@@ -64,5 +64,15 @@
   "calibration_spearman": 0.523809523809524,
   "top_decile_rate": 0.4015151515151515,
   "n_targets_ci_includes_chance": 4,
-  "vendor_agreement_ceiling": 0.89
+  "vendor_agreement": {
+    "n_measured_by_both": 1235,
+    "both_bind": 253,
+    "neither_bind": 846,
+    "adaptyv_only_bind": 69,
+    "twist_only_bind": 67,
+    "n_concordant": 1099,
+    "n_discordant": 136,
+    "agreement": 0.8898785425101214
+  },
+  "vendor_agreement_ceiling": 0.8898785425101214
 }
