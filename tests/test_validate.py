@@ -173,8 +173,17 @@ def test_banned_terms_guard_fails_on_empty_list_when_required(tmp_path: Path) ->
         text=True,
         check=False,
     )
+    # Three states, and the guard must fail loudly in two of them. `.private/`
+    # is gitignored, so the missing case is what every fresh clone and CI sees;
+    # an earlier version of this test only covered the other two and failed the
+    # first time it ran anywhere but the author's machine.
     terms = repo / ".private" / "banned_terms.txt"
-    has_terms = terms.is_file() and any(
+    if not terms.is_file():
+        assert result.returncode == 1, "a missing list must fail --require-non-empty"
+        assert "is missing" in result.stderr
+        return
+
+    has_terms = any(
         ln.strip() and not ln.strip().startswith("#")
         for ln in terms.read_text(encoding="utf-8", errors="replace").splitlines()
     )
