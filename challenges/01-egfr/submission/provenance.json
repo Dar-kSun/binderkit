@@ -1,0 +1,160 @@
+{
+  "run_id": "dev",
+  "generated_utc": "2026-10-05T03:29:34Z",
+  "git_commit": "ca04ac15d8a6d96e791d762af5d52f234244ae88",
+  "tool_versions": {
+    "python": "3.13.14",
+    "binderkit": "0.1.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "scipy": "1.18.1",
+    "sklearn": "1.9.1",
+    "Bio": "1.88",
+    "matplotlib": "3.11.2"
+  },
+  "config": {
+    "challenge_id": "01-egfr",
+    "tier": "auto",
+    "run_id": "dev",
+    "work_dir": "work",
+    "seed": 0,
+    "target": {
+      "name": "EGFR",
+      "uniprot": "P00533-1",
+      "pdb_id": "6ARU",
+      "chain": "A",
+      "residue_range": [
+        25,
+        645
+      ],
+      "recommended_epitope": "Domain III",
+      "epitope_residue_range": [
+        310,
+        480
+      ],
+      "orthologs": {
+        "mouse": "Q01279"
+      },
+      "keep_ligands": false
+    },
+    "generate": {
+      "backend": "fixture",
+      "length_range": [
+        55,
+        120
+      ],
+      "n_per_length": 4,
+      "seed": 0
+    },
+    "sequence": {
+      "backend": "fixture",
+      "temperatures": [
+        0.1,
+        0.2,
+        0.3
+      ],
+      "n_per_backbone_per_temp": 2,
+      "fixed_positions": {},
+      "seed": 0
+    },
+    "fold": {
+      "backend": "mock",
+      "n_seeds": 1,
+      "cache_by_sequence_hash": true
+    },
+    "novelty": {
+      "max_seq_identity": 0.3,
+      "max_tm_score": 0.6,
+      "batch_identity_cutoff": 0.7,
+      "max_per_cluster": 2,
+      "known_binder_identity_cutoff": 0.25
+    },
+    "liabilities": {
+      "max_unpaired_cys": 0,
+      "max_glyc_sequons": 0,
+      "max_hydrophobic_patch": 400.0,
+      "net_charge_range": [
+        -8.0,
+        8.0
+      ],
+      "max_lowcomplexity_run": 5
+    },
+    "rank": {
+      "objective_order": [
+        "ph_selectivity",
+        "ortholog",
+        "affinity"
+      ],
+      "min_self_consistency_rmsd": 2.0,
+      "calibrated_confidence_weight": 0.0,
+      "diversity_aware": true
+    },
+    "submission": {
+      "max_designs": 20,
+      "columns": [
+        "name",
+        "sequence",
+        "molecule_class"
+      ],
+      "allowed_molecule_class": [
+        "protein",
+        "nanobody",
+        "scfv",
+        "fab_kappa",
+        "fab_lambda"
+      ],
+      "molecule_class": "protein",
+      "length_bounds": [
+        10,
+        250
+      ],
+      "require_unique_sequences": true
+    }
+  },
+  "hardware": {
+    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "vram_mib": 8188,
+    "cpu_cores": 20,
+    "ram_gb": 23.7,
+    "free_disk_gb": 44.8,
+    "tier_detected": "C",
+    "tier_used": "C",
+    "tier_reasons": [
+      "VRAM 8188 MiB = 7.996 GiB -> Tier C on the VRAM rule.",
+      "Free disk 44.8 GB is below the 50 GB guard; the tier is already C so there is nothing to drop."
+    ]
+  },
+  "seeds": {
+    "generate": 0,
+    "sequence": 0,
+    "global": 0
+  },
+  "timings_seconds": {
+    "target": 0.19,
+    "backbones": 0.003,
+    "designs": 0.002,
+    "folds": 0.002,
+    "metrics": 0.029,
+    "novelty": 0.834,
+    "objectives": 0.002
+  },
+  "mocked_stages": [
+    "generate",
+    "sequence",
+    "fold"
+  ],
+  "skipped_stages": [],
+  "any_mocked": true,
+  "file_sha256": {
+    "challenges/01-egfr/submission/submission.csv": "d069d1ced663a1fbcd21b332d84b59fb01780d4605d66ee03b2bc1227609eec7",
+    "challenges/01-egfr/submission/metrics.csv": "b2b68aa5c4d5cd7668e783580f87fa959b4ca6ae643b330a0b317d2f519bdb82",
+    "challenges/01-egfr/submission/ranking_full.csv": "f9914547e075374866a52cc81fe0f628a79060ce1c2fd71bee36f27a55cb05f5",
+    "challenges/01-egfr/submission/novelty.csv": "526d8ee7332061d5212011a067d9ea3c99f8816ecf56ea5f886ff71229fc731d"
+  },
+  "notes": [
+    "MOCK: generate - fixture backend emits synthetic backbones with no 3D coordinates; ss_fractions are drawn from a fixed distribution, not measured",
+    "MOCK: sequence - fixture backend draws sequences from a temperature-weighted amino-acid distribution instead of running an inverse-folding model",
+    "MOCK: fold - no structure prediction is run; confidence values are a deterministic function of the sequence hash and are not predictions"
+  ]
+}

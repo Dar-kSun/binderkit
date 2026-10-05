@@ -1,0 +1,79 @@
+challenge_id: 01-egfr
+tier: auto
+run_id: dev
+work_dir: work
+seed: 0
+target:
+  name: EGFR
+  uniprot: P00533-1
+  pdb_id: 6ARU
+  chain: A
+  residue_range:
+  - 25
+  - 645
+  recommended_epitope: Domain III
+  epitope_residue_range:
+  - 310
+  - 480
+  orthologs:
+    mouse: Q01279
+  keep_ligands: false
+generate:
+  backend: fixture
+  length_range:
+  - 55
+  - 120
+  n_per_length: 4
+  seed: 0
+sequence:
+  backend: fixture
+  temperatures:
+  - 0.1
+  - 0.2
+  - 0.3
+  n_per_backbone_per_temp: 2
+  fixed_positions: {}
+  seed: 0
+fold:
+  backend: mock
+  n_seeds: 3
+  cache_by_sequence_hash: true
+novelty:
+  max_seq_identity: 0.3
+  max_tm_score: 0.6
+  batch_identity_cutoff: 0.7
+  max_per_cluster: 2
+  known_binder_identity_cutoff: 0.25
+liabilities:
+  max_unpaired_cys: 0
+  max_glyc_sequons: 0
+  max_hydrophobic_patch: 400.0
+  net_charge_range:
+  - -8.0
+  - 8.0
+  max_lowcomplexity_run: 5
+rank:
+  objective_order:
+  - ph_selectivity
+  - ortholog
+  - affinity
+  min_self_consistency_rmsd: 2.0
+  calibrated_confidence_weight: 0.0
+  diversity_aware: true
+submission:
+  max_designs: 20
+  columns:
+  - name
+  - sequence
+  - molecule_class
+  allowed_molecule_class:
+  - protein
+  - nanobody
+  - scfv
+  - fab_kappa
+  - fab_lambda
+  molecule_class: protein
+  length_bounds:
+  - 10
+  - 250
+  require_unique_sequences: true

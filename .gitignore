@@ -31,3 +31,6 @@ slurm-*.out
 .DS_Store
 .vscode/
 .idea/
+
+# Private, never committed
+.private/
