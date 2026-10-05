@@ -83,3 +83,70 @@ Appended each session. Things worth not relearning.
   two days. It also asserted a Track 3 cap of 20 that no live page confirms.
 - **When a cap is unverifiable, pick the value that satisfies every reading.**
   20 designs is valid under both a 20-cap and a 40-cap; 40 is not.
+
+---
+
+## Session 2 — 2026-10-05
+
+### Statistical
+
+- **Put an interval on the difference, not just on each number.** Session 1
+  reported CIs on individual AUROCs but stated its conclusions in terms of gaps
+  between them. Two of those gaps turned out to straddle zero. A paired
+  bootstrap, scoring both metrics on the same resampled targets, is what makes a
+  difference of a few hundredths resolvable at all - the marginal intervals are
+  far wider than the paired one because both metrics rise and fall together as
+  easy targets enter the sample.
+- **Correct for the screen.** Reporting the maximum over 30 correlated metrics
+  and attaching that metric's naive CI understates the uncertainty twice over.
+  Re-selecting the winner inside each replicate showed the nominal winner holds
+  only 64 pct of the time and 8 metrics win at least once.
+- **Test "does it add anything" conditionally, not marginally.** Cross-predictor
+  disagreement looked informative alone. Given the mean it is correlated with,
+  it makes held-out prediction worse. The marginal test answers a question
+  nobody is asking.
+- **A below-chance AUROC with a wide CI is not a finding.** BBF-14 at 0.398
+  looked like "worse than chance" until the interval came out as 0.000-0.764.
+  Three binders cannot support a claim.
+- **ECE hides non-monotonicity.** 0.078 looked respectable while the reliability
+  curve inverted above 0.6. Report the Spearman correlation across bins and the
+  top-decile rate, and drop bins with almost nothing in them instead of plotting
+  them as points.
+
+### Engineering
+
+- **Validate against a published number whenever one exists.** The release
+  publishes its own contact counts, which turned a plausible-looking 95.5 pct
+  agreement into a found bug: non-protein chains (Cas9 sgRNA, RBX1 zinc) were
+  being counted as interface. Agreement went to 100 pct. Nothing else would have
+  caught it.
+- **Absence is not zero.** 975 of 1309 design models have no binder side chains,
+  so hydrogen bonds there are unobservable. Emitting 0 would have described the
+  model, not the design. NaN, and say why.
+- **Check what a score is computed over.** MMseqs identity is over the aligned
+  region only, so a 9-residue match reads as 77 pct identity. Novelty must use
+  identity x coverage, and a positive control is mandatory: a silently-empty
+  search looks exactly like a set of perfectly novel designs.
+- **Profile before optimising, then optimise the inner loop.** sklearn's
+  roc_auc_score spends most of its time validating input. An exact rank-sum
+  AUROC is 37x faster and made a bootstrap that ran for 25 minutes finish in
+  100 seconds.
+- **An exact shortcut beats an approximation.** Only atoms near the partner
+  chain change SASA on binding, so restricting the computation to that zone is
+  ~50x faster and provably identical (verified to 0.000 A^2).
+- **A naive VRAM probe lies on Windows.** Allocate-until-OOM reported 18.25 GiB
+  on an 8.19 GiB card because the driver oversubscribes into system RAM.
+- **Don't claim what you didn't push hard enough to observe.** I measured no
+  slowdown up to 6000 MiB, which is inside physical VRAM, so I did not report a
+  spill penalty.
+
+### Process
+
+- **A changelog of retractions is a deliverable.** CHANGES.md is the most
+  informative file in the study directory: it shows the method working on its
+  own earlier output.
+- **Keep the downstream documents consistent with the corrected result.** The
+  README still carried session 1's withdrawn claims until it was explicitly
+  updated. A report that contradicts its own repo is worse than either version.
+- **Label every number measured or cited, and never average the two.** It makes
+  a compute request auditable instead of persuasive.

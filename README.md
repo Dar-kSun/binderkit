@@ -9,39 +9,53 @@ which means it cannot generate a real design on this hardware.
 
 ---
 
-## Headline result
+## Headline results
 
-On **1,320 published de novo binders against 15 targets** with wet-lab
-outcomes, the best in-silico metric is the **mean ipSAE across ten co-folding
-predictors**:
+Two studies on **1,320 published de novo binders against 15 targets** whose
+wet-lab outcomes are open. Neither needed a GPU.
+
+### Study 1 — do the scores predict binding?
 
 | | Within-target AUROC |
 |---|---|
-| `ipsae_mean` (10-predictor mean) | **0.761** |
-| best individual predictor (`ipsae_min_ptxv2`) | 0.733 |
-| leave-one-target-out logistic regression, 27 features | 0.726 |
+| `ipsae_mean` (co-folding confidence, mean of 10 predictors) | **0.761** |
+| best individual predictor | 0.733 |
+| leave-one-target-out model over 27 score columns | 0.726 |
 | best trivial baseline (`hydrophobic_fraction`) | 0.589 |
 
-![pooled vs within-target AUROC](studies/retrospective/figures/auroc_pooled_vs_within.png)
+**What survives every correction:** confidence beats the trivial baseline by
+**+0.172, 95% CI +0.077 to +0.273**, sign held in all 2,000 replicates.
 
-Three things fell out of it:
+**What does not:** averaging ten predictors is *not* measurably better than
+using one (+0.028, CI −0.031 to +0.081). **One predictor is enough**, which is
+roughly a tenfold saving in co-folding cost. Training a model over all the
+scores is worse than their plain average (−0.034, CI −0.063 to −0.004).
 
-1. **Average your predictors; do not learn weights over them.** The plain
-   unweighted mean beat every individual predictor by +0.028, and a logistic
-   regression over all 27 metric columns did **0.034 worse than that average**.
-   Relative predictor reliability does not transfer across targets; the mean
-   does.
-2. **Pooled AUROC is biased in both directions, metric by metric.** DockQ
-   metrics look up to +0.084 better when designs from all targets are pooled
-   than they are within a single target. Several ipSAE metrics look *worse*
-   pooled. There is no constant correction to apply — it has to be computed per
-   metric, which means reporting only pooled AUROC misleads in either direction.
-3. **Predictor disagreement is usable signal with its sign flipped.** Spread
-   across the ten predictors scores 0.370, well below chance; inverted, about
-   0.630. Designs the predictors agree about bind more often.
+![paired differences](studies/retrospective/figures/paired_differences.png)
 
-Full numbers, figures, per-target breakdown and calibration:
-[`studies/retrospective/REPORT.md`](studies/retrospective/REPORT.md).
+Also: the reliability curve **inverts** above 0.6 — designs predicted at 70–80%
+bound only 28% of the time, worse than mid-range predictions.
+
+### Study 2 — does interface geometry add anything?
+
+**No.** None of thirteen geometry metrics computed on real coordinates improves
+a model that already has the confidence score, two measurably hurt, and all
+thirteen together score **0.049 lower** (CI −0.091 to −0.006).
+
+![geometry conditional](studies/interface_geometry/figures/geometry_conditional.png)
+
+The expensive structural stage is redundant *for ranking*. The metric code is
+validated rather than assumed correct: it reproduces the release's published
+epitope, paratope and atom-contact counts **exactly on all 981 comparable
+designs**.
+
+Full numbers: [`studies/retrospective/REPORT.md`](studies/retrospective/REPORT.md)
+and [`studies/interface_geometry/REPORT.md`](studies/interface_geometry/REPORT.md).
+Conclusions withdrawn between sessions, and why:
+[`studies/retrospective/CHANGES.md`](studies/retrospective/CHANGES.md).
+
+A plain-language version for non-specialists is in
+[`docs/WRITEUP.md`](docs/WRITEUP.md).
 
 ## Honest status
 
@@ -49,9 +63,10 @@ Full numbers, figures, per-target breakdown and calibration:
   binder rate was **26.8%** (354 of 1,320). On **EGFR specifically — this
   challenge's target — it was 11.1%** (10 of 90), one of the hardest targets in
   the set, with far more compute than this repo has.
-- **The headline metric is weaker on EGFR than on average**: 0.669 within-target
-  AUROC against a 0.761 mean, and below chance on one target. It is wired in as
-  a soft ranking signal, never a hard filter.
+- **Per-target performance is too uncertain to filter on.** EGFR is 0.669 but
+  its 95% CI is 0.466–0.857, which includes chance; 4 of 14 targets do. Session 1
+  stated the EGFR and BBF-14 numbers as facts and both were withdrawn. Confidence
+  is wired in as a soft ranking signal, never a hard filter.
 - Two wet-lab assays on the same designs agree only **89%** of the time, which
   is a ceiling on what any in-silico metric can be asked to achieve.
 - **Track 3 has no guaranteed testing slot.** Tracks 2 and 3 share one 384-well
@@ -77,7 +92,8 @@ Python >= 3.10. No GPU required for anything in this repo as it stands.
 binderkit compute --write                    # probe hardware, write docs/COMPUTE.md, set tier
 binderkit run --challenge 01-egfr            # full pipeline, writes challenges/01-egfr/submission/
 binderkit validate challenges/01-egfr/submission/submission.csv
-binderkit study retrospective                # the section 8 study
+binderkit study retrospective                # study 1: do the scores work?
+binderkit study geometry                     # study 2: does geometry add anything?
 ```
 
 Add `--tier B` to override tier detection, or `--resume` to reuse completed
@@ -85,7 +101,7 @@ stages. Every stage writes `work/<run_id>/<stage>.parquet` and is skipped if its
 output exists, unless `--force`.
 
 ```bash
-pytest -q -m "not slow"      # 78 tests, offline, no GPU, ~3s
+pytest -q -m "not slow"      # 96 tests, offline, no GPU, ~4s
 ruff check . && ruff format --check .
 ```
 
@@ -153,6 +169,9 @@ consequences.
 | [`docs/BACKGROUND.md`](docs/BACKGROUND.md) | competition rules and prior art, with sources and access dates |
 | [`docs/TOOLS.md`](docs/TOOLS.md) | versions, licences, VRAM, what ran and what did not |
 | [`docs/COMPUTE.md`](docs/COMPUTE.md) | hardware and how the tier was chosen |
+| [`docs/WRITEUP.md`](docs/WRITEUP.md) | plain-language write-up for a general reader |
+| [`docs/CLUSTER_REQUEST.md`](docs/CLUSTER_REQUEST.md) | the compute ask, with measured benchmarks |
+| [`studies/retrospective/CHANGES.md`](studies/retrospective/CHANGES.md) | conclusions withdrawn in session 2, and why |
 | [`docs/LESSONS.md`](docs/LESSONS.md) | what each session learned |
 
 ## Licence
