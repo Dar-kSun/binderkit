@@ -1,4 +1,4 @@
-"""Tests for the MMseqs2 novelty search (NEXT_SESSION.md section 4.1).
+"""Tests for the MMseqs2 novelty search (docs/SPEC.md section 6.2).
 
 The search itself needs a 1.1M-sequence database, so those tests are marked
 slow. The coverage logic, which is where the real trap is, is tested offline.

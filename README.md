@@ -189,11 +189,22 @@ consequences.
 | [`docs/COMPUTE.md`](docs/COMPUTE.md) | hardware and how the tier was chosen |
 | [`docs/WRITEUP.md`](docs/WRITEUP.md) | plain-language write-up for a general reader |
 | [`docs/CLUSTER_REQUEST.md`](docs/CLUSTER_REQUEST.md) | the compute ask, with measured benchmarks |
-| [`studies/retrospective/CHANGES.md`](studies/retrospective/CHANGES.md) | conclusions withdrawn in session 2, and why |
-| [`docs/LESSONS.md`](docs/LESSONS.md) | what each session learned |
+| [`studies/retrospective/CHANGES.md`](studies/retrospective/CHANGES.md) | conclusions withdrawn, and why |
+| [`studies/retrospective/CHANGEstats.md`](studies/retrospective/CHANGEstats.md) | later corrections, including one that reversed a published sentence |
+| [`docs/SPEC.md`](docs/SPEC.md) | the numbered requirements the code and tests cite |
+| [`docs/LESSONS.md`](docs/LESSONS.md) | what went wrong, and what the fix was |
+| [`portfolio/`](portfolio/) | a single-page summary for a general reader, with its numbers asserted against the studies |
+
+## Install
+
+```bash
+pip install -e ".[dev]"
+pre-commit install          # ruff, whitespace, large-file and banned-term hooks
+pytest -q -m "not slow"     # offline, no GPU, under a minute
+```
 
 ## Licence
 
-MIT for this code. Data sources carry their own licences; see
+MIT for this code; see [`LICENSE`](LICENSE). Data sources carry their own licences; see
 [`docs/TOOLS.md`](docs/TOOLS.md). The Anthropic binder release is CC BY 4.0 and
 is cited accordingly.

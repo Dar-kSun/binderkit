@@ -89,7 +89,7 @@ docs/SPEC.md §7.1 and §12.3 rule 5 both assert "<=20 designs per challenge
 **Decision: cap at 20.** 20 satisfies a 20-cap and a 40-cap simultaneously,
 whereas 40 would violate a 20-cap. The cap is a config value
 (`submission.max_designs`), so it is a one-line change if the author confirms 40.
-Recorded in `JOURNAL.md` and `docs/LIMITATIONS.md`.
+Recorded in `docs/LIMITATIONS.md`.
 
 ### Integrity rules
 
@@ -105,7 +105,7 @@ Recorded in `JOURNAL.md` and `docs/LIMITATIONS.md`.
 - **IP:** submitting grants sponsors a non-exclusive, worldwide, royalty-free,
   perpetual, irrevocable publication licence; "publication may affect
   patentability, and Participant is responsible for making any patent filings
-  before submitting a design." Flagged for the author in `MORNING_REPORT.md` —
+  before submitting a design." Recorded in `docs/LIMITATIONS.md` —
   it is a decision only they can make, and it is irreversible after submission.
 
 ---

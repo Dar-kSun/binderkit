@@ -1,4 +1,4 @@
-"""Measured per-stage cost, for the compute request (NEXT_SESSION.md section 8.1).
+"""Measured per-stage cost, for the compute request (docs/CLUSTER_REQUEST.md).
 
 A compute request built on estimates is easy to dismiss. This records what each
 stage actually costs on this machine: wall time, peak RSS, and peak VRAM where a

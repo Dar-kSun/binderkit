@@ -1,4 +1,4 @@
-"""Tests for interface geometry (NEXT_SESSION.md section 3.2).
+"""Tests for interface geometry (docs/SPEC.md section 13).
 
 The headline validation - exact agreement with the release's published contact
 counts on 981 designs - runs in the study itself. These tests cover the

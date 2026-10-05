@@ -22,7 +22,7 @@ Probed 2026-10-04T22:31+0530. Reproduce with `binderkit compute`.
 
 `free -g` from §1 is Linux-only and does not exist in Git Bash on native
 Windows; RAM was read with `Get-CimInstance Win32_ComputerSystem` instead.
-The substitution is recorded in `JOURNAL.md` under Decisions.
+The substitution is recorded in `docs/LIMITATIONS.md`.
 
 ## Network
 
@@ -71,4 +71,4 @@ GPU.
 ## Time budget
 
 8 h (§0.3 default; no other figure was supplied). Phase boundaries are
-timestamped in `JOURNAL.md`.
+timestamped in `docs/LIMITATIONS.md`.

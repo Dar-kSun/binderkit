@@ -1,4 +1,4 @@
-"""Statistics for the retrospective studies (NEXT_SESSION.md section 2).
+"""Statistics for the retrospective studies (docs/SPEC.md section 8.2).
 
 Session 1 reported confidence intervals on individual AUROCs but stated its
 headline conclusions in terms of *differences* between metrics (+0.028, -0.034)
@@ -410,7 +410,7 @@ def within_target_bootstrap(
 
 
 # --------------------------------------------------------------------------
-# Calibration (NEXT_SESSION section 2.4)
+# Calibration (docs/SPEC.md section 8.2)
 # --------------------------------------------------------------------------
 
 
@@ -501,7 +501,7 @@ def top_decile_rate(y: np.ndarray, s: np.ndarray) -> tuple[float, int]:
 
 
 # --------------------------------------------------------------------------
-# Conditional signal (NEXT_SESSION section 2.4, disagreement)
+# Conditional signal: does a metric add anything given another one?
 # --------------------------------------------------------------------------
 
 

@@ -6,9 +6,9 @@ __pycache__/
 .ipynb_checkpoints/
 
 # Working directory: weights, databases, caches, downloaded structures.
-# docs/SPEC.md section 3 requires this and session 1 omitted it, so session 2
-# committed 1,309 structures, the MMseqs2 binaries and an 809 MB database
-# before anyone noticed.
+# docs/SPEC.md section 3 requires this and it was omitted at first, so 1,309
+# structures, the MMseqs2 binaries and an 809 MB database were committed
+# before anyone noticed. Keep the scar comment; it is the useful kind.
 work/
 
 # Data & models (keep large artifacts out of git)
@@ -40,6 +40,3 @@ slurm-*.out
 
 # Private, never committed
 .private/
-
-# Local Claude Code permissions, never shared
-.claude/settings.local.json

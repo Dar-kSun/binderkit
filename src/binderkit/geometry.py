@@ -1,4 +1,4 @@
-"""Interface geometry on real coordinates (NEXT_SESSION.md section 3).
+"""Interface geometry on real coordinates (docs/SPEC.md section 6.1).
 
 Session 1 left every interface metric as NaN because Tier C produced no
 structures. The Anthropic release ships design models for 1,309 designs with

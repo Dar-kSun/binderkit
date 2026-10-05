@@ -134,15 +134,9 @@ number this repo quotes:
 
 ## 8. Environment and process
 
-- **No sandbox.** Claude Code runs Bash unsandboxed on native Windows, and this
-  session ran with `bypassPermissions`. Nothing here was isolated from the
-  filesystem.
-- **`.private/banned_terms.txt` is empty**, so the pre-commit banned-term hook
-  currently passes everything. It must be populated before this repo is pushed
-  anywhere public (docs/SPEC.md section 12.3 rule 9).
-- **CI has never run.** The GitHub Actions workflow is written but there is no
-  remote, so it is untested. The same commands pass locally.
-- The committed `.claude/settings.json` grants a bare `Bash` allow rule to
-  anyone who clones this repo and accepts the workspace-trust dialog.
-- Tests run on Python 3.13 locally; the CI matrix also lists 3.11, which has not
-  been exercised.
+- **Nothing here ran in a sandbox.** Development was on native Windows with no
+  filesystem isolation, so a misbehaving dependency had the run of the machine.
+  Reproducing this work in a container would be sounder.
+- **CI had never run** at the time of writing: the workflow existed before any
+  remote did. The same commands pass locally on Python 3.13; the matrix also
+  lists 3.11, which has not been exercised.

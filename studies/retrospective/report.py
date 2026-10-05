@@ -1,4 +1,4 @@
-"""Retrospective study: analysis driver and report (NEXT_SESSION.md section 2).
+"""Retrospective study: analysis driver and report (docs/SPEC.md section 8).
 
 Session 2 rewrite. Session 1 established the method but stated its conclusions
 more confidently than its own uncertainty supported: the two headline claims
@@ -527,10 +527,12 @@ def write_report(df: pd.DataFrame, a: dict, figs: list[str]):  # noqa: ARG001
     w("  might extract more, though the ceiling implied above is not far away.")
     w("- `binder_final` is a model-adjudicated label over two assays that disagree on")
     w("  11% of designs.")
-    w("- The study inherits every caveat in the release's own `docs/DATA_NOTEstats.md`.")
+    w("- The study inherits every caveat in the release's own `docs/DATA_NOTES.md`.")
     w("")
 
     path = OUT / "REPORT.md"
+    while L and not L[-1].strip():  # no trailing blank line; the repo hook strips it
+        L.pop()
     path.write_text("\n".join(L) + "\n", encoding="utf-8")
     return path
 
@@ -683,6 +685,8 @@ def write_changes(a: dict):
     w("")
 
     path = OUT / "CHANGEstats.md"
+    while L and not L[-1].strip():  # no trailing blank line; the repo hook strips it
+        L.pop()
     path.write_text("\n".join(L) + "\n", encoding="utf-8")
     return path
 

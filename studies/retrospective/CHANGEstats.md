@@ -92,4 +92,3 @@ means the operating point does not transfer to an unscreened pipeline.
 - Grouping by target throughout.
 - The 89% inter-assay agreement ceiling.
 - The decision to treat confidence as a soft ranking signal.
-

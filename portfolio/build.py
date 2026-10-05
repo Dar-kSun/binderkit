@@ -1,6 +1,6 @@
 """Generate ``portfolio/numbers.json`` from the canonical study outputs.
 
-``portfolio/`` is a derived view. Its one hard rule (docs/SPEC.md section 18.3) is
+``portfolio/`` is a derived view. Its one hard rule (see ``portfolio/README.md``) is
 that **no number may appear in it that is not already in ``studies/``**. This
 script is how that rule is enforced rather than promised: every figure the page
 quotes is resolved here from a study output file, and

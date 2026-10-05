@@ -1,4 +1,4 @@
-"""Sequence database search for the novelty gate (NEXT_SESSION.md section 4.1).
+"""Sequence database search for the novelty gate (docs/SPEC.md section 6.2).
 
 Session 1 screened designs against a handful of reference sequences because no
 search tool was installed. This runs a real search against every protein

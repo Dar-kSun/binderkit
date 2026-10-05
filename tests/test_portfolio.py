@@ -1,6 +1,6 @@
 """The portfolio may publish only numbers that `studies/` already contains.
 
-docs/SPEC.md section 18.3 states the rule and requires this test: `portfolio/` is a
+`portfolio/README.md` states the rule this test enforces: `portfolio/` is a
 derived view of `studies/`, and a portfolio that drifts from the study is worse
 than no portfolio, because the whole claim of the repo is that its numbers are
 reproducible.
@@ -192,7 +192,7 @@ def test_no_withdrawn_claim_appears_anywhere_in_the_portfolio() -> None:
 
 
 def test_the_geometry_result_is_stated_in_its_narrow_form() -> None:
-    """Section 18.3: the conflict with Overath et al. must be on the page."""
+    """docs/SPEC.md section 8.5: the conflict with Overath et al. must be on the page."""
     html = INDEX.read_text(encoding="utf-8")
     assert "Overath" in html, "the conflicting published result must be named"
     assert "multiplied by" in html or "multiplicative" in html

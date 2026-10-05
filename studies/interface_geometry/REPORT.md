@@ -275,4 +275,3 @@ read in its narrow form.
 - The same selection bias that qualifies study 1 applies here: these designs
   were chosen for ordering using the confidence metric, so the sample is
   filtered on the very reference this study compares against.
-

@@ -1,4 +1,4 @@
-"""Network fetching that never blocks the session (NEXT_SESSION.md section 0).
+"""Network fetching that never blocks on a dead host.
 
 Session 1 lost about 9.5 hours of wall clock to a stall, so every fetch here is
 bounded: a hard timeout, three retries with backoff, then fall back to cache and

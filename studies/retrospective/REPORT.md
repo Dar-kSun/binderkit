@@ -260,5 +260,4 @@ unscreened pipeline.
   might extract more, though the ceiling implied above is not far away.
 - `binder_final` is a model-adjudicated label over two assays that disagree on
   11% of designs.
-- The study inherits every caveat in the release's own `docs/DATA_NOTEstats.md`.
-
+- The study inherits every caveat in the release's own `docs/DATA_NOTES.md`.

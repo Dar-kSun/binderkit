@@ -481,6 +481,8 @@ def write_report(a: dict, validation: dict) -> Path:
     w("")
 
     path = OUT / "REPORT.md"
+    while L and not L[-1].strip():  # no trailing blank line; the repo hook strips it
+        L.pop()
     path.write_text("\n".join(L) + "\n", encoding="utf-8")
     return path
 
