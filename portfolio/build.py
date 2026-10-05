@@ -39,6 +39,7 @@ GEOM = "studies/interface_geometry/summary.json"
 GEOM_REPORT = "studies/interface_geometry/REPORT.md"
 REPL = "studies/replication/summary.json"
 SC_VALIDATION = "studies/interface_geometry/validation_sc.json"
+ROS_VALIDATION = "studies/replication/validation_rosetta.json"
 
 #: key, human label, source spec, display format.
 #:
@@ -524,6 +525,93 @@ SPEC: list[tuple[str, str, str, str]] = [
     ),
     ("sc.trim_gain", "what the trim was worth", f"{SC_VALIDATION}#cases[0].trim_gain", "f3"),
     ("sc.worst_gap", "worst gap to a published band", f"{SC_VALIDATION}#worst_absolute_gap", "f3"),
+    # ---- study 3: the interface-energy arm ------------------------------
+    (
+        "study3.dg_n",
+        "designs where a Rosetta energy is meaningful",
+        f"{REPL}#arms.interface_dG_dSASA.n",
+        "int",
+    ),
+    (
+        "study3.dg_n_targets",
+        "targets in that subset",
+        f"{REPL}#arms.interface_dG_dSASA.n_targets",
+        "int",
+    ),
+    (
+        "study3.dg_base_rate",
+        "binder rate in that subset",
+        f"{REPL}#arms.interface_dG_dSASA.base_rate",
+        "pct1",
+    ),
+    (
+        "study3.dg_ap_confidence",
+        "confidence alone, average precision",
+        f"{REPL}#arms.interface_dG_dSASA.a_their_way.ap_confidence",
+        "f3",
+    ),
+    (
+        "study3.dg_ap_product",
+        "confidence x interface energy",
+        f"{REPL}#arms.interface_dG_dSASA.a_their_way.ap_product",
+        "f3",
+    ),
+    (
+        "study3.dg_ap_diff",
+        "difference",
+        f"{REPL}#arms.interface_dG_dSASA.a_their_way.ap_difference.difference",
+        "s3",
+    ),
+    (
+        "study3.dg_ap_ci_lo",
+        "",
+        f"{REPL}#arms.interface_dG_dSASA.a_their_way.ap_difference.ci_lo",
+        "s3",
+    ),
+    (
+        "study3.dg_ap_ci_hi",
+        "",
+        f"{REPL}#arms.interface_dG_dSASA.a_their_way.ap_difference.ci_hi",
+        "s3",
+    ),
+    (
+        "study3.dg_auroc_diff",
+        "difference in within-target AUROC",
+        f"{REPL}#arms.interface_dG_dSASA.b_our_way.difference.difference",
+        "s3",
+    ),
+    (
+        "study3.dg_auroc_ci_lo",
+        "",
+        f"{REPL}#arms.interface_dG_dSASA.b_our_way.difference.ci_lo",
+        "s3",
+    ),
+    (
+        "study3.dg_auroc_ci_hi",
+        "",
+        f"{REPL}#arms.interface_dG_dSASA.b_our_way.difference.ci_hi",
+        "s3",
+    ),
+    # ---- the Rosetta setup's own validation -----------------------------
+    ("rosetta.n_scored", "designs Rosetta scored", f"{ROS_VALIDATION}#n_scored", "int"),
+    (
+        "rosetta.dsasa_r",
+        "agreement between Rosetta's buried area and ours",
+        f"{ROS_VALIDATION}#dsasa_vs_bsa_total.pearson_r",
+        "f3",
+    ),
+    (
+        "rosetta.dsasa_ratio",
+        "median ratio of Rosetta buried area to ours",
+        f"{ROS_VALIDATION}#dsasa_vs_bsa_total.median_ratio",
+        "f3",
+    ),
+    (
+        "rosetta.fraction_physical",
+        "designs reaching a negative interface energy",
+        f"{ROS_VALIDATION}#energy_plausibility.fraction_repacked_negative",
+        "pct1",
+    ),
 ]
 
 

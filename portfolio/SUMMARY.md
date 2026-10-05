@@ -19,13 +19,11 @@ confidence wins by **+0.172 AUROC** (95% CI +0.077 to +0.273). A real signal,
 worth using.
 
 **Averaging ten structure predictors is not measurably better than using
-one.** The difference is +0.028, with an interval of -0.031 to +0.081 that
-comfortably contains zero. The published campaign ran ten predictors at five
-seeds each — fifty folds per design. One predictor at five seeds is five: a
-tenfold cut in the most expensive stage for no measurable loss.
-
-**Training a model on all the score columns is worse** than averaging them, by
-+0.034 in the average's favour (CI +0.004 to +0.063).
+one** (+0.028, interval -0.031 to +0.081). The campaign ran ten predictors at
+five seeds each; one at five seeds is a tenfold cut in the most expensive
+stage for no measurable loss. **Training a model on all the score columns is
+worse** than averaging them (+0.034 in the average's favour, CI +0.004 to
++0.063).
 
 **The reliability curve inverts exactly where decisions are made.** Designs
 predicted at 0.729 bound only **28.2%** of the time, worse than mid-range
@@ -46,13 +44,11 @@ test added geometry as a linear term — and a model given the two separately
 cannot represent their product unless the interaction is handed to it. So my
 test had not addressed their claim at all.
 
-So I ran the replication, with the decision rules written down first. One of
-their two features was out of reach at first: interface energy needs Rosetta,
-which ships no Windows build, and substituting a different energy function
-would not be a replication of anything, so **their stronger combination is not
-covered by the numbers below**. Shape
-complementarity has a licence-free definition, so I reimplemented it with the
-published parameters and tested the product both their way and mine.
+So I ran the replication, with the decision rules written down first, and
+both of their features ended up computed. Shape complementarity has a
+licence-free definition, so I reimplemented it with the published parameters
+and tested the product both their way and mine. Interface energy needs
+Rosetta, which has no Windows build and runs here under WSL.
 
 It does not help. By average precision, their measure: 0.582 for confidence
 alone against 0.521 for the product (-0.061, CI -0.108 to -0.017). By
@@ -60,6 +56,22 @@ within-target AUROC: 0.746 against 0.698 (-0.048, CI -0.091 to -0.008). A
 model handed the interaction explicitly gains nothing either (-0.002, CI
 -0.019 to +0.014). At precision@20 — what a twenty-design submission actually
 faces — confidence gets 0.433 and the product 0.400.
+
+**Their stronger combination still cannot be tested here.** A Rosetta energy
+means nothing on a backbone-only model, so that arm runs on just 173 labelled
+designs across 12 targets, at a 16.2% binder rate against 26.8% overall.
+Average precision goes 0.515 to 0.410 and within-target AUROC moves -0.082,
+but the intervals are -0.269 to +0.044 and -0.340 to +0.224. Everything
+straddles zero by a wide margin. The point estimates lean the same way as the
+other arm and are worth nothing on their own.
+
+The setup itself was checked before any of that was believed: Rosetta's
+buried-surface-area number agrees with the one my own code computes at 0.947
+correlation over 223 designs, a median ratio of 1.040 - two implementations
+written independently. What fails is not the measurement but the material.
+Only 51.6% of these deposited models reach even a negative interface energy,
+where a real binding interface sits tens of units below zero, and Rosetta
+segfaults outright on 21 of the 244 structures.
 
 **This does not make them wrong**, and the rule I fixed in advance says so.
 Their corpus is three times larger, their binder rate is far below the 26.8%
@@ -72,12 +84,12 @@ is now closed by direct test rather than by argument.
 ## Why the intervals are wide
 
 Designs against the same target are not independent, so every split holds out
-whole targets and every score is computed inside a target before averaging.
-Metrics are compared on identical resampled sets of targets, the only way a
-0.03 gap resolves at this sample size — and that is what showed two such gaps
-could not be. The headline metric was the best of 30 screened, so the
-selection is re-run inside every bootstrap replicate: the interval widens to
-0.689–0.847, and the nominal winner wins only 64% of them.
+whole targets and every score is computed inside a target first. Metrics are
+compared on identical resampled sets of targets — the only way a 0.03 gap
+resolves at this sample size, and what showed two such gaps could not be. The
+headline metric was the best of 30 screened, so the selection is re-run inside
+every bootstrap replicate: the interval widens to 0.689–0.847 and the nominal
+winner wins only 64% of them.
 
 ## Corrections, kept in the record
 
@@ -85,8 +97,7 @@ An early version stated two conclusions its own uncertainty did not support;
 both were withdrawn once the differences carried intervals. A later version
 claimed binders had *fewer* contacts and *less* buried surface — pooled across
 targets, where the largest interfaces belong to the targets nobody could bind.
-Within target, every sign reverses. And two documents claimed nobody had asked
-this question before, which one literature search disproves.
+Within target, every sign reverses.
 
 The most useful bug surfaced while reimplementing someone else's statistic.
 Checked against a crystallographic interface with a published value, my first
@@ -97,7 +108,7 @@ reproduces the expected answer is fitting the method to the result.
 
 ## What this is not
 
-Half the replication is not covered above. No design here has been made or tested,
+The interface-energy half settles nothing. No design here has been made or tested,
 and nothing has been submitted anywhere. Of 1,235 designs measured by two
 independent laboratories, the two agree only 89.0% of the time, which bounds
 how well any score could appear to do. At the measured operating point 46.3%

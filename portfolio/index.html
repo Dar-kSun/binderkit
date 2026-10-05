@@ -318,14 +318,14 @@
 <h2>Testing their claim directly, in their functional form</h2>
 
 <p>
-  One of their two features was out of reach at first: interface energy needs
-  Rosetta, which ships no Windows build, and substituting a different energy
-  function would not be a replication of anything. <strong>Their stronger combination
-  therefore remains untested here, and everything below is about the other
-  one.</strong> Shape complementarity has a licence-free definition, so I
-  reimplemented it with the published parameters and tested the product their
-  way and mine, on
-  <span class="n" data-n="study3.n_designs">1153</span> designs.
+  Both of their features ended up computed. Shape complementarity has a
+  licence-free definition, so I reimplemented it with the published parameters
+  and tested the product their way and mine, on
+  <span class="n" data-n="study3.n_designs">1153</span> designs. Interface
+  energy needs Rosetta, which has no Windows build — it runs under WSL — and
+  is only meaningful where a design model carries side chains, which most do
+  not. That arm is reported separately below, because it is a different and
+  much weaker test.
 </p>
 
 <div class="tablewrap">
@@ -370,9 +370,46 @@
   <span class="n" data-n="study3.base_rate">27.0%</span> base rate.
 </p>
 
+<h3>Their other feature: interface energy</h3>
+
 <p>
-  One detail is worth reading carefully: the raw product <em>hurts</em> while
-  the fitted interaction is merely <em>inert</em>. An unweighted product forces
+  This is the combination they report as strongest, and on this dataset it
+  cannot be tested. A Rosetta energy means nothing on a backbone-only model,
+  so the arm runs on just
+  <span class="n" data-n="study3.dg_n">173</span> labelled designs across
+  <span class="n" data-n="study3.dg_n_targets">12</span> targets, at a
+  <span class="n" data-n="study3.dg_base_rate">16.2%</span> binder rate
+  against <span class="n" data-n="study1.base_rate">26.8%</span> overall — a
+  harder and unrepresentative slice. Average precision goes from
+  <span class="n" data-n="study3.dg_ap_confidence">0.515</span> to
+  <span class="n" data-n="study3.dg_ap_product">0.410</span>, a difference of
+  <span class="n" data-n="study3.dg_ap_diff">-0.106</span>
+  <span class="ci">(CI <span data-n="study3.dg_ap_ci_lo">-0.269</span> to <span data-n="study3.dg_ap_ci_hi">+0.044</span>)</span>;
+  within-target AUROC moves
+  <span class="n" data-n="study3.dg_auroc_diff">-0.082</span>
+  <span class="ci">(CI <span data-n="study3.dg_auroc_ci_lo">-0.340</span> to <span data-n="study3.dg_auroc_ci_hi">+0.224</span>)</span>.
+  <strong>Every interval straddles zero by a wide margin.</strong> The point
+  estimates lean the same way as the other arm, and they are worth nothing on
+  their own.
+</p>
+
+<p>
+  That the setup itself is sound was checked first, and it is the part I would
+  defend: Rosetta's buried-surface-area number agrees with the one my own code
+  computes at <span class="n" data-n="rosetta.dsasa_r">0.947</span>
+  correlation over <span class="n" data-n="rosetta.n_scored">223</span>
+  designs, with a median ratio of
+  <span class="n" data-n="rosetta.dsasa_ratio">1.040</span> — two
+  implementations written independently, agreeing closely.
+  What fails is not the measurement but the material: only
+  <span class="n" data-n="rosetta.fraction_physical">51.6%</span> of these
+  deposited models reach even a negative interface energy, where a real
+  binding interface sits tens of units below zero.
+</p>
+
+<p>
+  One detail from the first arm is worth reading carefully: the raw product
+  <em>hurts</em> while the fitted interaction is merely <em>inert</em>. An unweighted product forces
   the geometry in at full strength, so its noise lands in the ranking; a model
   that can choose the coefficient sets it near zero. Both say the same thing —
   there is no signal here for the model to find.
@@ -590,9 +627,10 @@
 
 <ul>
   <li>
-    <strong>Half of the replication is not covered above.</strong> The
-    stronger of the two published combinations uses Rosetta interface energy,
-    which has no Windows build. Nothing above speaks to it.
+    <strong>The interface-energy result settles nothing.</strong> It rests on
+    <span class="n" data-n="study3.dg_n">173</span> designs with intervals
+    wide enough to contain almost any conclusion, so the stronger of the two
+    published combinations is still effectively untested.
   </li>
   <li>
     <strong>No design here has been made or tested.</strong> Nothing has been

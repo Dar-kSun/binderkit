@@ -636,6 +636,96 @@
       "display": "0.082",
       "label": "worst gap to a published band",
       "source": "studies/interface_geometry/validation_sc.json#worst_absolute_gap"
+    },
+    "study3.dg_n": {
+      "value": 173,
+      "display": "173",
+      "label": "designs where a Rosetta energy is meaningful",
+      "source": "studies/replication/summary.json#arms.interface_dG_dSASA.n"
+    },
+    "study3.dg_n_targets": {
+      "value": 12,
+      "display": "12",
+      "label": "targets in that subset",
+      "source": "studies/replication/summary.json#arms.interface_dG_dSASA.n_targets"
+    },
+    "study3.dg_base_rate": {
+      "value": 0.16184971098265896,
+      "display": "16.2%",
+      "label": "binder rate in that subset",
+      "source": "studies/replication/summary.json#arms.interface_dG_dSASA.base_rate"
+    },
+    "study3.dg_ap_confidence": {
+      "value": 0.5154556856187291,
+      "display": "0.515",
+      "label": "confidence alone, average precision",
+      "source": "studies/replication/summary.json#arms.interface_dG_dSASA.a_their_way.ap_confidence"
+    },
+    "study3.dg_ap_product": {
+      "value": 0.40963557047685434,
+      "display": "0.410",
+      "label": "confidence x interface energy",
+      "source": "studies/replication/summary.json#arms.interface_dG_dSASA.a_their_way.ap_product"
+    },
+    "study3.dg_ap_diff": {
+      "value": -0.10582011514187478,
+      "display": "-0.106",
+      "label": "difference",
+      "source": "studies/replication/summary.json#arms.interface_dG_dSASA.a_their_way.ap_difference.difference"
+    },
+    "study3.dg_ap_ci_lo": {
+      "value": -0.26894722083564127,
+      "display": "-0.269",
+      "label": "",
+      "source": "studies/replication/summary.json#arms.interface_dG_dSASA.a_their_way.ap_difference.ci_lo"
+    },
+    "study3.dg_ap_ci_hi": {
+      "value": 0.04389840970149586,
+      "display": "+0.044",
+      "label": "",
+      "source": "studies/replication/summary.json#arms.interface_dG_dSASA.a_their_way.ap_difference.ci_hi"
+    },
+    "study3.dg_auroc_diff": {
+      "value": -0.0822992615849758,
+      "display": "-0.082",
+      "label": "difference in within-target AUROC",
+      "source": "studies/replication/summary.json#arms.interface_dG_dSASA.b_our_way.difference.difference"
+    },
+    "study3.dg_auroc_ci_lo": {
+      "value": -0.33951269938174705,
+      "display": "-0.340",
+      "label": "",
+      "source": "studies/replication/summary.json#arms.interface_dG_dSASA.b_our_way.difference.ci_lo"
+    },
+    "study3.dg_auroc_ci_hi": {
+      "value": 0.2235999999999998,
+      "display": "+0.224",
+      "label": "",
+      "source": "studies/replication/summary.json#arms.interface_dG_dSASA.b_our_way.difference.ci_hi"
+    },
+    "rosetta.n_scored": {
+      "value": 223,
+      "display": "223",
+      "label": "designs Rosetta scored",
+      "source": "studies/replication/validation_rosetta.json#n_scored"
+    },
+    "rosetta.dsasa_r": {
+      "value": 0.9466171249500382,
+      "display": "0.947",
+      "label": "agreement between Rosetta's buried area and ours",
+      "source": "studies/replication/validation_rosetta.json#dsasa_vs_bsa_total.pearson_r"
+    },
+    "rosetta.dsasa_ratio": {
+      "value": 1.04019683418119,
+      "display": "1.040",
+      "label": "median ratio of Rosetta buried area to ours",
+      "source": "studies/replication/validation_rosetta.json#dsasa_vs_bsa_total.median_ratio"
+    },
+    "rosetta.fraction_physical": {
+      "value": 0.515695067264574,
+      "display": "51.6%",
+      "label": "designs reaching a negative interface energy",
+      "source": "studies/replication/validation_rosetta.json#energy_plausibility.fraction_repacked_negative"
     }
   }
 }
