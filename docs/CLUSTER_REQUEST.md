@@ -26,14 +26,26 @@ model trained on all 27 score columns did **worse** than their plain average.
 Every per-target number has an interval wide enough that four of fourteen
 include chance, so no score is safe as a hard filter.
 
-The second study has no published precedent. Pipelines routinely compute
-interface geometry — buried surface area, contact counts, hydrogen bonds — and
-rank on it. Computing thirteen such measurements on real coordinates for 1,189
-designs with known outcomes, **none of them improves a model that already has
-the confidence score**, two make it measurably worse, and all thirteen together
-score 0.049 lower than confidence alone (interval −0.091 to −0.006). The
-expensive structural stage is redundant for ranking. That is a direct reduction
-in what any scaled pipeline needs to compute.
+The second study is the first analysis of **this dataset**, though the question
+is not new — Overath et al. (bioRxiv 2025.08.14.670059) asked a version of it
+across 3,766 binders. Pipelines routinely compute interface geometry — buried
+surface area, contact counts, hydrogen bonds — and rank on it. Computing
+thirteen such measurements on real coordinates for 1,189 designs with known
+outcomes, **none of them improves a model that already has the confidence
+score** when added as a linear term, two make it measurably worse, and all
+thirteen together score 0.049 lower than confidence alone (interval −0.091 to
+−0.006).
+
+That result is narrower than it first looks, and the narrow form is the one I
+rely on. Overath et al. report that confidence *multiplied by* interface
+dG/dSASA beats either alone. I did not compute that feature and my test adds
+geometry linearly, which cannot represent a product — so the two findings may
+not conflict at all. The replication that settles it is specified and costs no
+GPU time (it is Rosetta scoring, CPU work). **Until it has run I am not
+claiming the geometry stage can be dropped**, only that no additive benefit was
+found for the thirteen metrics tested. If the replication confirms the null,
+that is a direct reduction in what any scaled pipeline needs to compute; if it
+does not, the stage stays and costs CPU hours this machine has in abundance.
 
 ---
 

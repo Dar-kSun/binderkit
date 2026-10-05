@@ -38,21 +38,39 @@ bound only 28% of the time, worse than mid-range predictions.
 
 ### Study 2 — does interface geometry add anything?
 
-**No.** None of thirteen geometry metrics computed on real coordinates improves
-a model that already has the confidence score, two measurably hurt, and all
-thirteen together score **0.049 lower** (CI −0.091 to −0.006).
+**Not additively.** None of thirteen geometry metrics computed on real
+coordinates improves a model that already has the confidence score, two
+measurably hurt, and all thirteen together score **0.049 lower**
+(CI −0.091 to −0.006).
 
 ![geometry conditional](studies/interface_geometry/figures/geometry_conditional.png)
 
-The expensive structural stage is redundant *for ranking*. The metric code is
-validated rather than assumed correct: it reproduces the release's published
-epitope, paratope and atom-contact counts **exactly on all 981 comparable
-designs**.
+That claim is deliberately narrow, and the narrow form is the whole of it.
+[Overath et al. 2025](https://doi.org/10.1101/2025.08.14.670059), on 3,766
+binders, report that confidence **multiplied by** interface dG/dSASA beats
+either alone. Two reasons these may not actually conflict: that feature is not
+among the thirteen tested here, and their combination is a *product* while this
+test adds geometry as a *linear* term, which a logistic model cannot use to
+represent an interaction. So this study has not tested their claim. Study 3
+(`binderkit study replication`) is the experiment that settles it, with its
+decision rules pre-registered before the output is seen. Until it runs, nothing
+here says the geometry stage can be dropped.
+
+The same paper **agrees** with study 1 on the two results that matter:
+ipSAE-family confidence is the best single predictor, and pooling features
+across structure predictors does not help. Independent replication on three
+times the data is worth more than a novelty claim, and this repo is not the
+first to ask the question — only the first to ask it of this dataset.
+
+The metric code is validated rather than assumed correct: it reproduces the
+release's published epitope, paratope and atom-contact counts **exactly on all
+981 comparable designs**.
 
 Full numbers: [`studies/retrospective/REPORT.md`](studies/retrospective/REPORT.md)
 and [`studies/interface_geometry/REPORT.md`](studies/interface_geometry/REPORT.md).
 Conclusions withdrawn between sessions, and why:
-[`studies/retrospective/CHANGES.md`](studies/retrospective/CHANGES.md).
+[`studies/retrospective/CHANGES.md`](studies/retrospective/CHANGES.md) and
+[`studies/retrospective/CHANGEstats.md`](studies/retrospective/CHANGEstats.md).
 
 A plain-language version for non-specialists is in
 [`docs/WRITEUP.md`](docs/WRITEUP.md).

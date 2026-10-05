@@ -18,10 +18,15 @@ weeks, so you might build twenty out of ten thousand.
 
 Everyone chooses using scores from structure-prediction models — software that
 guesses the 3D shape of the binder stuck to its target and reports how confident
-it is. Almost nobody has checked how well those scores predict what the lab
-measures. In August 2026 Anthropic published 1,440 designed binders with their
-scores **and** their wet-lab outcomes, openly licensed. That makes the check
-possible.
+it is. How well those scores predict what the lab measures has been asked
+before — most thoroughly by Overath et al. in 2025, who pooled 3,766 binders
+from many published campaigns — but it is hard to answer well, because pooled
+campaigns disagree about what counts as "binding" and rarely record how each
+design was made. In August 2026 Anthropic published 1,440 designed binders with
+their scores **and** their wet-lab outcomes, openly licensed: one campaign, one
+rubric for calling a binder, and two independent labs measuring the same
+molecules. That makes a cleaner version of the check possible, and nobody had
+run it on this dataset.
 
 ---
 
@@ -64,7 +69,7 @@ Three things I expected to find, and did not:
 
 ---
 
-## Study 2: the structural analysis is redundant
+## Study 2: the structural analysis adds nothing — in the form I tested it
 
 Beyond the confidence score, pipelines compute the **geometry of the
 interface** — how much surface is buried, how many atoms touch, how many
@@ -74,15 +79,32 @@ The released data includes 3D models of the complexes, so I computed thirteen
 geometry measurements on real coordinates for 1,189 designs with known
 outcomes, without running any structure prediction myself.
 
-**It adds nothing.** Not one of the thirteen improved a model that already had
-the confidence score. Two made it measurably worse. All thirteen together scored
-**0.049 lower** than confidence alone (interval −0.091 to −0.006).
+**Added one at a time, none of them helped.** Not one of the thirteen improved
+a model that already had the confidence score. Two made it measurably worse.
+All thirteen together scored **0.049 lower** than confidence alone (interval
+−0.091 to −0.006).
 
 ![conditional effect of geometry](../studies/interface_geometry/figures/geometry_conditional.png)
 
-A detail I did not expect: designs that *did* bind had on average **fewer**
-contacts and **less** buried surface than designs that did not. In these models
-a big contact patch tends to mark an implausible pose rather than a strong grip.
+**Here is where my result argues with the literature, and I think the
+literature may win.** Overath et al. report that confidence *multiplied by*
+interface energy per buried area beats either on its own. I never computed that
+feature, and more importantly my test adds geometry as an extra *linear* term,
+which cannot express a product. So I have not tested their claim — I have
+tested a weaker one, and a null for mine is perfectly compatible with a real
+effect for theirs. The replication that would settle it is specified and needs
+no GPU. Until it runs, the honest statement is: *no additive effect for
+thirteen metrics*, not *geometry is useless*.
+
+An earlier version of this write-up claimed designs that bound had **fewer**
+contacts and **less** buried surface, and read that as a big contact patch
+marking an implausible pose. That was wrong, and wrong in an instructive way:
+the comparison was pooled across targets, and the targets with the biggest
+interfaces are the ones nobody could bind. Recomputed inside each target, every
+one of those differences reverses — binders have **more** contacts and **more**
+buried surface, in 9 or 10 targets out of 14. The study's actual conclusion was
+never affected, because that was within-target throughout, but the most
+quotable sentence in it was false. It is withdrawn.
 
 I trust these numbers because the code is checked, not assumed correct. The
 release publishes its own contact counts for the same files, and my
@@ -97,9 +119,11 @@ some designs eightyfold.
 
 1. **Rank on one co-folding confidence score.** Averaging several is not
    measurably better, and training a model on them is worse.
-2. **Do not compute interface geometry in order to rank.** It is redundant with
-   a number you already have. It remains useful for diagnosing *why* a design
-   looks wrong.
+2. **Adding interface geometry to a confidence score did not help my ranking.**
+   Thirteen metrics, none of them an improvement, added linearly. I would not
+   yet generalise that to "skip the geometry stage": the literature reports a
+   *multiplicative* combination that works and I have not tested it. Geometry
+   remains useful for diagnosing *why* a design looks wrong either way.
 3. **Do not use any score as a hard cut-off.** Performance varies widely by
    target, and on 4 of 14 targets the interval includes chance.
 4. **Expect modest enrichment.** At the best threshold, about 46% of selected
@@ -135,8 +159,9 @@ memory, not difficulty: 8.19 GB against a 12 GB floor.
 What compute would buy is a **test of a stated hypothesis**, not a promise of
 results. Both findings rest on designs chosen by someone else's process, which
 is their main weakness; generating designs and checking whether the same
-relationships hold is the experiment. Study 2 also removes a stage from that
-pipeline, so hours go to generation rather than scoring.
+relationships hold is the experiment. Study 2 may also remove a stage from that
+pipeline, so hours go to generation rather than scoring — pending the
+replication described above.
 
 ---
 

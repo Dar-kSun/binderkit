@@ -105,6 +105,105 @@ def mean_within_target_auroc(y: np.ndarray, s: np.ndarray, groups: np.ndarray) -
 
 
 # --------------------------------------------------------------------------
+# Group-aware differences
+# --------------------------------------------------------------------------
+
+
+@dataclass
+class GroupDifference:
+    """Mean difference between outcome classes, pooled and within group.
+
+    The two can disagree in sign. When group membership is associated with both
+    the metric and the outcome rate -- which is exactly the case here, because
+    targets differ in interface size *and* in how hard they are to bind -- the
+    pooled difference is Simpson's paradox waiting to happen. Session 3 found a
+    shipped report claiming binders had *fewer* interface contacts on a pooled
+    comparison that reverses inside every second target.
+
+    Only :attr:`within` may be quoted. :attr:`pooled` is kept so the
+    disagreement can be reported, never so it can be used.
+    """
+
+    name: str
+    #: Mean(positive) - mean(negative) over all rows, ignoring groups. Do not quote.
+    pooled: float
+    #: Mean over groups of the within-group difference. This is the honest one.
+    within: float
+    #: How many groups had a positive within-group difference.
+    n_groups_positive: int
+    #: How many groups contributed (both classes present, values not all NaN).
+    n_groups: int
+
+    @property
+    def sign_flips(self) -> bool:
+        """True when pooling reverses the direction of the effect."""
+        return (
+            self.pooled == self.pooled
+            and self.within == self.within
+            and self.pooled * self.within < 0.0
+        )
+
+    def sentence(self) -> str:
+        """One line stating the within-group result, and its group support."""
+        direction = "higher" if self.within > 0 else "lower"
+        return (
+            f"`{self.name}` is {direction} in binders by {abs(self.within):.3g} "
+            f"within target ({self.n_groups_positive}/{self.n_groups} targets "
+            f"positive)"
+        )
+
+
+def within_group_mean_difference(
+    y: np.ndarray, x: np.ndarray, groups: np.ndarray, name: str = ""
+) -> GroupDifference:
+    """Compare a metric between outcome classes, inside each group and pooled.
+
+    Parameters
+    ----------
+    y
+        Binary outcome, 1 for the positive class.
+    x
+        The metric. NaNs are dropped per group.
+    groups
+        Group label per row; the difference is averaged over groups, so a large
+        group cannot dominate the way it does in a pooled comparison.
+    name
+        Metric name, used only in :meth:`GroupDifference.sentence`.
+
+    Returns
+    -------
+    GroupDifference
+        Both estimates. Quote ``within``; ``pooled`` exists to be contrasted
+        with it, not to be reported on its own.
+    """
+    y = np.asarray(y).astype(int)
+    x = np.asarray(x, dtype=float)
+    groups = np.asarray(groups)
+
+    ok = ~np.isnan(x)
+    pooled = float("nan")
+    if ok.any() and y[ok].min() == 0 and y[ok].max() == 1:
+        pooled = float(x[ok & (y == 1)].mean() - x[ok & (y == 0)].mean())
+
+    diffs: list[float] = []
+    for g in np.unique(groups):
+        m = ok & (groups == g)
+        pos, neg = m & (y == 1), m & (y == 0)
+        if pos.sum() == 0 or neg.sum() == 0:
+            continue
+        diffs.append(float(x[pos].mean() - x[neg].mean()))
+
+    within = float(np.mean(diffs)) if diffs else float("nan")
+    return GroupDifference(
+        name=name,
+        pooled=pooled,
+        within=within,
+        n_groups_positive=int(sum(d > 0 for d in diffs)),
+        n_groups=len(diffs),
+    )
+
+
+# --------------------------------------------------------------------------
 # Bootstrap machinery
 # --------------------------------------------------------------------------
 

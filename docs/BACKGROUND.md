@@ -231,6 +231,47 @@ Pinned/cited for `docs/TOOLS.md`:
   `docs/TOOLS.md` for any backend actually invoked. Under Tier C none are
   invoked, so they are cited as interface contracts only.
 
+### The field's prior art on the §8 question — missed until session 3
+
+§2 fetches the *competition's* prior art. Nobody had fetched the **field's**,
+and the result was that two shipped reports claimed novelty that one literature
+search disproves. The paper that asks a version of §8's question:
+
+> Overath MD, Rygaard ASH, Jacobsen CP, Brasas V, Morell O, Sormanni P,
+> Jenkins TP. *Predicting Experimental Success in De Novo Binder Design: A
+> Meta-Analysis of 3,766 Experimentally Characterised Binders.* bioRxiv
+> 2025.08.14.670059v2, 17 Sep 2025. doi:10.1101/2025.08.14.670059
+
+| | Overath et al. | This repo |
+|---|---|---|
+| Designs | 3,766 | 1,320 (study 1), 1,189 (study 2) |
+| Targets | 15 | 15 (14 informative) |
+| Binder rate | 11.6% (436) | 26.8% (354) |
+| Source | meta-analysis over many campaigns, non-standardised binding definitions | one campaign, one adjudication rubric, two CROs |
+| Predictors | AF2 (initial-guess + ColabFold), AF3, Boltz-1 | the release's 10, as published |
+| Coordinates | complexes **re-predicted** by them | the release's **design models** |
+| Headline metric | average precision (chosen for class imbalance) | within-target AUROC |
+| Split | leave-one-group-out by target, plus precision@k | leave-one-target-out, plus paired target bootstrap |
+| Best single feature | AF3 `ipSAE_min` | `ipsae_mean` / `ipsae_min_ptxv2` |
+
+**They agree with us on the two conclusions that matter**, which is support,
+not competition: ipSAE-family confidence is the best single in-silico
+predictor, and pooling features across structure predictors does not improve
+performance ("did not improve median AP"). The second is this repo's
+conclusions 2 and 3, replicated externally on three times the data — and ours
+is the stronger form, since we tested ten predictors against their three to
+four.
+
+**They disagree with study 2 on geometry**, reporting that
+`ipSAE_min × interface_dG/dSASA` and `LIS × shape_complementarity` each beat
+their components. That conflict may be an artefact of study 2's scope: neither
+feature was tested here, and theirs is a product where study 2 added a linear
+term. See docs/SPEC.md §8.5–§8.6 and `studies/retrospective/CHANGEstats.md` §10.
+
+Accessed: not re-fetched this session; cited from docs/SPEC.md §8.5, which
+records the full reference. Verify the DOI before quoting the numbers
+elsewhere.
+
 ## 5. Published hit-rate expectations
 
 - Historical de novo competition hit rates ~10-15% (docs/SPEC.md §2; the Adaptyv
