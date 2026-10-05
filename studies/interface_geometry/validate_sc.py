@@ -122,9 +122,16 @@ def main() -> int:
         "cases": [],
     }
 
-    print(f"{'interface':44s} {'Sc':>7s} {'published':>12s}  verdict")
+    print(f"{'interface':44s} {'Sc':>7s} {'no trim':>8s} {'published':>12s}  verdict")
     for case in CASES:
         sc, n_b, n_t = shape_complementarity(st, case["binder"], set(case["targets"]))
+        # The same calculation without the peripheral trim, kept as a recorded
+        # control rather than an anecdote: it is what this implementation
+        # returned before the trim was added, and the size of that gap is the
+        # argument for validating against an external value at all.
+        sc_untrimmed, _, _ = shape_complementarity(
+            st, case["binder"], set(case["targets"]), trim=0.0
+        )
         lo, hi = case["published_lo"], case["published_hi"]
         gap = 0.0 if lo <= sc <= hi else (sc - lo if sc < lo else sc - hi)
         verdict = "in band" if lo <= sc <= hi else f"{gap:+.3f} outside"
@@ -132,14 +139,21 @@ def main() -> int:
             {
                 **{k: case[k] for k in ("name", "kind", "published_lo", "published_hi")},
                 "sc": sc,
+                "sc_without_peripheral_trim": sc_untrimmed,
+                "trim_gain": sc - sc_untrimmed,
                 "n_binder_points": n_b,
                 "n_target_points": n_t,
                 "gap_to_band": gap,
                 "in_band": bool(lo <= sc <= hi),
             }
         )
-        print(f"{case['name']:44s} {sc:7.3f} {lo:5.2f}-{hi:.2f}  {verdict}")
+        print(f"{case['name']:44s} {sc:7.3f} {sc_untrimmed:8.3f} {lo:5.2f}-{hi:.2f}  {verdict}")
 
+    print(
+        "\nThe 'no trim' column is the control: Lawrence and Colman discard a "
+        "1.5 A\nperipheral band, and omitting it costs "
+        f"{report['cases'][0]['trim_gain']:.3f} of Sc on the first case."
+    )
     worst = max(abs(c["gap_to_band"]) for c in report["cases"])
     report["worst_absolute_gap"] = worst
     # The study only ever ranks designs within a target, which a constant

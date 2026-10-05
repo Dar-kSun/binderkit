@@ -372,8 +372,10 @@ def write_report(a: dict) -> Path:
         w(f"| `{CONFIDENCE}` x `{name}` | {ta['ap_product']:.3f} |")
         w("")
         d = ta["ap_difference"]
-        w(f"Difference {d.difference:+.3f}, 95% CI {d.ci_lo:+.3f} to {d.ci_hi:+.3f}, ")
-        w(f"sign held in {100 * d.sign_consistency:.0f}% of replicates: **{_verdict(d)}**.")
+        w(
+            f"Difference {d.difference:+.3f}, 95% CI {d.ci_lo:+.3f} to {d.ci_hi:+.3f}, "
+            f"sign held in {100 * d.sign_consistency:.0f}% of replicates: {_verdict(d)}."
+        )
         w("")
         w("Precision@k, within target, averaged over the targets with at least")
         w("k scored designs. **k = 20 is this competition's actual decision.**")
@@ -398,8 +400,10 @@ def write_report(a: dict) -> Path:
         w(f"| `{CONFIDENCE}` x `{name}` | {tb['auroc_product']:.3f} |")
         w("")
         d = tb["difference"]
-        w(f"Difference {d.difference:+.3f}, 95% CI {d.ci_lo:+.3f} to {d.ci_hi:+.3f}, ")
-        w(f"sign held {100 * d.sign_consistency:.0f}%: **{_verdict(d)}**.")
+        w(
+            f"Difference {d.difference:+.3f}, 95% CI {d.ci_lo:+.3f} to {d.ci_hi:+.3f}, "
+            f"sign held {100 * d.sign_consistency:.0f}%: {_verdict(d)}."
+        )
         w("")
         agree = (ta["ap_difference"].difference > 0) == (d.difference > 0)
         if agree:
@@ -436,9 +440,20 @@ def write_report(a: dict) -> Path:
         elif not (lin.distinguishable or inter.distinguishable):
             w("Neither the linear term nor the explicit interaction changes the")
             w("model measurably. The objection that study 2 could not represent a")
-            w("product is answered directly here: given the product explicitly,")
+            w("product is answered directly here: handed the product explicitly,")
             w("the model still does not improve.")
         w("")
+        d_raw = arm["b_our_way"]["difference"]
+        if d_raw.distinguishable and d_raw.difference < 0 and not inter.distinguishable:
+            w("**The raw product hurts while the fitted interaction is merely")
+            w("inert, and the difference between those two is informative.** The")
+            w("raw product is an unweighted combination: it forces the geometry in")
+            w("at full strength, so whatever noise Sc carries goes straight into")
+            w("the ranking. A logistic model handed the same interaction can give")
+            w("it a coefficient near zero, and does. Taken together: there is no")
+            w("signal here for the model to find, and using the product as a")
+            w("ranking score without fitting it actively costs performance.")
+            w("")
 
         sub = arm["all_atom_subset"]
         w("### The side-chain restriction, which bounds all of the above")
@@ -458,7 +473,7 @@ def write_report(a: dict) -> Path:
             w(f"({sub['n_targets']} targets, binder rate {100 * sub['base_rate']:.1f}%),")
             w(f"confidence scores {sub['auroc_confidence']:.3f} and the product")
             w(f"{sub['auroc_product']:.3f}: {d.difference:+.3f}, 95% CI")
-            w(f"{d.ci_lo:+.3f} to {d.ci_hi:+.3f}, **{_verdict(d)}**.")
+            w(f"{d.ci_lo:+.3f} to {d.ci_hi:+.3f}, {_verdict(d)}.")
             w("")
             w("This subset is small and **not representative** -- its binder rate")
             w("differs from the full set, because model status is confounded with")
@@ -467,6 +482,40 @@ def write_report(a: dict) -> Path:
             w(f"Only {sub['n']} designs carry binder side chains, too few to test")
             w("separately.")
         w("")
+
+    w("## Which pre-registered rule applies")
+    w("")
+    w("docs/SPEC.md section 8.6 fixes the decision rules before the output is")
+    w("seen, so that the result cannot be rationalised afterwards. The rule that")
+    w("applies here is the third one: **cannot reproduce their result**, for the")
+    w("one feature that could be tested. Its instruction is explicit --")
+    w("*do not claim they are wrong* -- and the reasons are worth stating, not")
+    w("just citing:")
+    w("")
+    w("| Their study | This study |")
+    w("|---|---|")
+    w("| 3,766 designs | " + f"{arms['shape_complementarity']['n']} designs |")
+    w("| 11.6% binder rate | " + f"{100 * arms['shape_complementarity']['base_rate']:.1f}% |")
+    w(
+        "| many campaigns, non-standardised binding definitions | one campaign, one adjudication rubric, two CROs |"
+    )
+    w(
+        "| geometry on complexes **they re-predicted** | geometry on the release's **design models** |"
+    )
+    w(
+        "| full-atom models throughout | "
+        + f"side chains on {arms['shape_complementarity']['all_atom_subset']['n']} of {arms['shape_complementarity']['n']} binder models |"
+    )
+    w("| Rosetta's `sc` filter | an independent reimplementation reading ~0.05 low |")
+    w("")
+    w("Three times the data beats one campaign, and a single failure to")
+    w("reproduce is weaker evidence than their positive across many. What this")
+    w("study does establish is narrower and still worth having: **on this")
+    w("dataset, with this definition of shape complementarity, the product form")
+    w("does not rescue geometry.** The objection that study 2 could not have")
+    w("detected a multiplicative effect has been answered by direct test, so the")
+    w("thirteen-metric null is stronger than it was, for geometry of this kind.")
+    w("")
 
     w("## What this does and does not settle")
     w("")

@@ -37,6 +37,8 @@ CAL = "studies/retrospective/calibration.json"
 PER_TARGET = "studies/retrospective/per_target_results.csv"
 GEOM = "studies/interface_geometry/summary.json"
 GEOM_REPORT = "studies/interface_geometry/REPORT.md"
+REPL = "studies/replication/summary.json"
+SC_VALIDATION = "studies/interface_geometry/validation_sc.json"
 
 #: key, human label, source spec, display format.
 #:
@@ -394,6 +396,134 @@ SPEC: list[tuple[str, str, str, str]] = [
         f"{GEOM_REPORT}#text:by a factor of eighty",
         "text",
     ),
+    # ---- study 3: the replication --------------------------------------
+    (
+        "study3.n_designs",
+        "designs with shape complementarity and an outcome",
+        f"{REPL}#arms.shape_complementarity.n",
+        "int",
+    ),
+    ("study3.n_targets", "targets", f"{REPL}#arms.shape_complementarity.n_targets", "int"),
+    ("study3.base_rate", "binder rate", f"{REPL}#arms.shape_complementarity.base_rate", "pct1"),
+    (
+        "study3.ap_confidence",
+        "confidence alone, mean within-target average precision",
+        f"{REPL}#arms.shape_complementarity.a_their_way.ap_confidence",
+        "f3",
+    ),
+    (
+        "study3.ap_product",
+        "confidence x shape complementarity",
+        f"{REPL}#arms.shape_complementarity.a_their_way.ap_product",
+        "f3",
+    ),
+    (
+        "study3.ap_sc_alone",
+        "shape complementarity alone",
+        f"{REPL}#arms.shape_complementarity.a_their_way.ap_feature_alone",
+        "f3",
+    ),
+    (
+        "study3.ap_diff",
+        "difference in average precision",
+        f"{REPL}#arms.shape_complementarity.a_their_way.ap_difference.difference",
+        "s3",
+    ),
+    (
+        "study3.ap_ci_lo",
+        "",
+        f"{REPL}#arms.shape_complementarity.a_their_way.ap_difference.ci_lo",
+        "s3",
+    ),
+    (
+        "study3.ap_ci_hi",
+        "",
+        f"{REPL}#arms.shape_complementarity.a_their_way.ap_difference.ci_hi",
+        "s3",
+    ),
+    (
+        "study3.auroc_confidence",
+        "confidence alone, within-target AUROC",
+        f"{REPL}#arms.shape_complementarity.b_our_way.auroc_confidence",
+        "f3",
+    ),
+    (
+        "study3.auroc_product",
+        "confidence x shape complementarity",
+        f"{REPL}#arms.shape_complementarity.b_our_way.auroc_product",
+        "f3",
+    ),
+    (
+        "study3.auroc_diff",
+        "difference in within-target AUROC",
+        f"{REPL}#arms.shape_complementarity.b_our_way.difference.difference",
+        "s3",
+    ),
+    (
+        "study3.auroc_ci_lo",
+        "",
+        f"{REPL}#arms.shape_complementarity.b_our_way.difference.ci_lo",
+        "s3",
+    ),
+    (
+        "study3.auroc_ci_hi",
+        "",
+        f"{REPL}#arms.shape_complementarity.b_our_way.difference.ci_hi",
+        "s3",
+    ),
+    (
+        "study3.interaction_diff",
+        "explicit interaction term added to the model",
+        f"{REPL}#arms.shape_complementarity.c_linear_then_interaction.interaction.difference",
+        "s3",
+    ),
+    (
+        "study3.interaction_ci_lo",
+        "",
+        f"{REPL}#arms.shape_complementarity.c_linear_then_interaction.interaction.ci_lo",
+        "s3",
+    ),
+    (
+        "study3.interaction_ci_hi",
+        "",
+        f"{REPL}#arms.shape_complementarity.c_linear_then_interaction.interaction.ci_hi",
+        "s3",
+    ),
+    (
+        "study3.p_at_20_confidence",
+        "precision@20, confidence",
+        f"{REPL}#arms.shape_complementarity.a_their_way.precision_at_k.20.confidence",
+        "f3",
+    ),
+    (
+        "study3.p_at_20_product",
+        "precision@20, the product",
+        f"{REPL}#arms.shape_complementarity.a_their_way.precision_at_k.20.product",
+        "f3",
+    ),
+    (
+        "study3.all_atom_n",
+        "binder models carrying real side chains",
+        f"{REPL}#arms.shape_complementarity.all_atom_subset.n",
+        "int",
+    ),
+    # ---- the Sc reimplementation and its external check -----------------
+    (
+        "sc.reference_value",
+        "Sc on a crystallographic antibody-antigen interface",
+        f"{SC_VALIDATION}#cases[0].sc",
+        "f3",
+    ),
+    ("sc.published_lo", "published band, low", f"{SC_VALIDATION}#cases[0].published_lo", "f2"),
+    ("sc.published_hi", "published band, high", f"{SC_VALIDATION}#cases[0].published_hi", "f2"),
+    (
+        "sc.without_trim",
+        "the same interface before the peripheral trim was added",
+        f"{SC_VALIDATION}#cases[0].sc_without_peripheral_trim",
+        "f3",
+    ),
+    ("sc.trim_gain", "what the trim was worth", f"{SC_VALIDATION}#cases[0].trim_gain", "f3"),
+    ("sc.worst_gap", "worst gap to a published band", f"{SC_VALIDATION}#worst_absolute_gap", "f3"),
 ]
 
 
@@ -480,6 +610,8 @@ def display(value: Any, fmt: str) -> str:
         return str(value)
     if fmt == "int":
         return f"{int(value)}"
+    if fmt == "f2":
+        return f"{value:.2f}"
     if fmt == "f3":
         return f"{value:.3f}"
     if fmt == "s3":

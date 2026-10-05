@@ -480,6 +480,162 @@
       "display": "by a factor of eighty",
       "label": "how far the bug inflated the worst designs",
       "source": "studies/interface_geometry/REPORT.md#text:by a factor of eighty"
+    },
+    "study3.n_designs": {
+      "value": 1153,
+      "display": "1153",
+      "label": "designs with shape complementarity and an outcome",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.n"
+    },
+    "study3.n_targets": {
+      "value": 15,
+      "display": "15",
+      "label": "targets",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.n_targets"
+    },
+    "study3.base_rate": {
+      "value": 0.2697311361665221,
+      "display": "27.0%",
+      "label": "binder rate",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.base_rate"
+    },
+    "study3.ap_confidence": {
+      "value": 0.5816191271303337,
+      "display": "0.582",
+      "label": "confidence alone, mean within-target average precision",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.a_their_way.ap_confidence"
+    },
+    "study3.ap_product": {
+      "value": 0.5208929345141534,
+      "display": "0.521",
+      "label": "confidence x shape complementarity",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.a_their_way.ap_product"
+    },
+    "study3.ap_sc_alone": {
+      "value": 0.3275069625139803,
+      "display": "0.328",
+      "label": "shape complementarity alone",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.a_their_way.ap_feature_alone"
+    },
+    "study3.ap_diff": {
+      "value": -0.060726192616180286,
+      "display": "-0.061",
+      "label": "difference in average precision",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.a_their_way.ap_difference.difference"
+    },
+    "study3.ap_ci_lo": {
+      "value": -0.10773628875532217,
+      "display": "-0.108",
+      "label": "",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.a_their_way.ap_difference.ci_lo"
+    },
+    "study3.ap_ci_hi": {
+      "value": -0.01685793805740863,
+      "display": "-0.017",
+      "label": "",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.a_their_way.ap_difference.ci_hi"
+    },
+    "study3.auroc_confidence": {
+      "value": 0.7462931679310122,
+      "display": "0.746",
+      "label": "confidence alone, within-target AUROC",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.b_our_way.auroc_confidence"
+    },
+    "study3.auroc_product": {
+      "value": 0.6979457783139544,
+      "display": "0.698",
+      "label": "confidence x shape complementarity",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.b_our_way.auroc_product"
+    },
+    "study3.auroc_diff": {
+      "value": -0.04834738961705776,
+      "display": "-0.048",
+      "label": "difference in within-target AUROC",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.b_our_way.difference.difference"
+    },
+    "study3.auroc_ci_lo": {
+      "value": -0.09094913639495908,
+      "display": "-0.091",
+      "label": "",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.b_our_way.difference.ci_lo"
+    },
+    "study3.auroc_ci_hi": {
+      "value": -0.007874502853595549,
+      "display": "-0.008",
+      "label": "",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.b_our_way.difference.ci_hi"
+    },
+    "study3.interaction_diff": {
+      "value": -0.002267262905102818,
+      "display": "-0.002",
+      "label": "explicit interaction term added to the model",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.c_linear_then_interaction.interaction.difference"
+    },
+    "study3.interaction_ci_lo": {
+      "value": -0.018795409696111192,
+      "display": "-0.019",
+      "label": "",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.c_linear_then_interaction.interaction.ci_lo"
+    },
+    "study3.interaction_ci_hi": {
+      "value": 0.014183923927685933,
+      "display": "+0.014",
+      "label": "",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.c_linear_then_interaction.interaction.ci_hi"
+    },
+    "study3.p_at_20_confidence": {
+      "value": 0.4333333333333333,
+      "display": "0.433",
+      "label": "precision@20, confidence",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.a_their_way.precision_at_k.20.confidence"
+    },
+    "study3.p_at_20_product": {
+      "value": 0.39999999999999997,
+      "display": "0.400",
+      "label": "precision@20, the product",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.a_their_way.precision_at_k.20.product"
+    },
+    "study3.all_atom_n": {
+      "value": 191,
+      "display": "191",
+      "label": "binder models carrying real side chains",
+      "source": "studies/replication/summary.json#arms.shape_complementarity.all_atom_subset.n"
+    },
+    "sc.reference_value": {
+      "value": 0.611742504148394,
+      "display": "0.612",
+      "label": "Sc on a crystallographic antibody-antigen interface",
+      "source": "studies/interface_geometry/validation_sc.json#cases[0].sc"
+    },
+    "sc.published_lo": {
+      "value": 0.64,
+      "display": "0.64",
+      "label": "published band, low",
+      "source": "studies/interface_geometry/validation_sc.json#cases[0].published_lo"
+    },
+    "sc.published_hi": {
+      "value": 0.68,
+      "display": "0.68",
+      "label": "published band, high",
+      "source": "studies/interface_geometry/validation_sc.json#cases[0].published_hi"
+    },
+    "sc.without_trim": {
+      "value": 0.45729801994615027,
+      "display": "0.457",
+      "label": "the same interface before the peripheral trim was added",
+      "source": "studies/interface_geometry/validation_sc.json#cases[0].sc_without_peripheral_trim"
+    },
+    "sc.trim_gain": {
+      "value": 0.15444448420224377,
+      "display": "0.154",
+      "label": "what the trim was worth",
+      "source": "studies/interface_geometry/validation_sc.json#cases[0].trim_gain"
+    },
+    "sc.worst_gap": {
+      "value": 0.08205909499157271,
+      "display": "0.082",
+      "label": "worst gap to a published band",
+      "source": "studies/interface_geometry/validation_sc.json#worst_absolute_gap"
     }
   }
 }

@@ -301,26 +301,120 @@
   <p>
     <a href="https://doi.org/10.1101/2025.08.14.670059">Overath et&nbsp;al. (2025)</a>,
     pooling 3,766 experimentally characterised binders, report the opposite:
-    confidence <strong>multiplied by</strong> interface &Delta;G per buried
-    area beats either on its own. I think they may well be right, for two
-    reasons that are both limits of my test rather than of theirs.
+    confidence <strong>multiplied by</strong> interface geometry beats either
+    on its own, for two features I had not computed. Their combination is a
+    <em class="q">product</em> and the test above adds geometry as a
+    <em class="q">linear</em> term — and a logistic model in (confidence,
+    geometry) cannot represent confidence &times; geometry unless the
+    interaction is handed to it explicitly. <strong>So that test did not
+    address their claim; it addressed a weaker one.</strong>
   </p>
   <p>
-    First, that feature is not among my thirteen. Second and more seriously,
-    their combination is a <em class="q">product</em> and my test adds geometry
-    as an extra <em class="q">linear</em> term — and a logistic model in
-    (confidence, geometry) cannot represent confidence &times; geometry unless
-    the interaction is handed to it explicitly. <strong>So I have not tested
-    their claim; I tested a weaker one.</strong> A null additive effect is
-    entirely compatible with a real multiplicative one.
-  </p>
-  <p>
-    The experiment that settles it is specified, pre-registered with its
-    decision rules, and costs no GPU time. Until it runs, the honest form of
-    this result is <em class="q">no additive effect for thirteen metrics</em>,
-    not <em class="q">geometry is useless</em>.
+    So I ran the replication, with its decision rules written down first.
   </p>
 </div>
+
+<p class="kicker">The replication</p>
+<h2>Testing their claim directly, in their functional form</h2>
+
+<p>
+  One of their two features is out of reach: interface energy needs a licensed
+  Rosetta build I do not have, and substituting a different energy function
+  would not be a replication of anything. <strong>Their stronger combination
+  therefore remains untested here, and everything below is about the other
+  one.</strong> Shape complementarity has a licence-free definition, so I
+  reimplemented it with the published parameters and tested the product their
+  way and mine, on
+  <span class="n" data-n="study3.n_designs">1153</span> designs.
+</p>
+
+<div class="tablewrap">
+<table>
+  <caption>Confidence alone against confidence &times; shape complementarity. Higher is better in both columns.</caption>
+  <thead>
+    <tr><th>Test</th><th class="num">Confidence</th><th class="num">&times; geometry</th><th class="num">Difference</th><th>95% CI</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Average precision (their measure)</td>
+      <td class="num" data-n="study3.ap_confidence">0.582</td>
+      <td class="num" data-n="study3.ap_product">0.521</td>
+      <td class="num down" data-n="study3.ap_diff">-0.061</td>
+      <td class="ci"><span data-n="study3.ap_ci_lo">-0.108</span> to <span data-n="study3.ap_ci_hi">-0.017</span></td>
+    </tr>
+    <tr>
+      <td>Within-target AUROC (mine)</td>
+      <td class="num" data-n="study3.auroc_confidence">0.746</td>
+      <td class="num" data-n="study3.auroc_product">0.698</td>
+      <td class="num down" data-n="study3.auroc_diff">-0.048</td>
+      <td class="ci"><span data-n="study3.auroc_ci_lo">-0.091</span> to <span data-n="study3.auroc_ci_hi">-0.008</span></td>
+    </tr>
+    <tr>
+      <td>Interaction term in the fitted model</td>
+      <td class="num">&mdash;</td>
+      <td class="num">&mdash;</td>
+      <td class="num" data-n="study3.interaction_diff">-0.002</td>
+      <td class="ci"><span data-n="study3.interaction_ci_lo">-0.019</span> to <span data-n="study3.interaction_ci_hi">+0.014</span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  Both measures agree, so the choice between them is not what decides it, and a
+  model handed the interaction explicitly does not improve either. At
+  precision@20 — the number a twenty-design submission actually faces —
+  confidence gets <span class="n" data-n="study3.p_at_20_confidence">0.433</span>
+  and the product
+  <span class="n" data-n="study3.p_at_20_product">0.400</span>, against a
+  <span class="n" data-n="study3.base_rate">27.0%</span> base rate.
+</p>
+
+<p>
+  One detail is worth reading carefully: the raw product <em>hurts</em> while
+  the fitted interaction is merely <em>inert</em>. An unweighted product forces
+  the geometry in at full strength, so its noise lands in the ranking; a model
+  that can choose the coefficient sets it near zero. Both say the same thing —
+  there is no signal here for the model to find.
+</p>
+
+<div class="callout">
+  <span class="h">What this does not license me to say</span>
+  <p>
+    <strong>Not that they are wrong.</strong> The decision rule I wrote down
+    before running this says so explicitly, and the reasons are real: their
+    corpus is three times larger; their binder rate is 11.6% against
+    <span class="n" data-n="study3.base_rate">27.0%</span> here; they computed
+    geometry on complexes they re-predicted while mine comes from the designers'
+    own models; only
+    <span class="n" data-n="study3.all_atom_n">191</span> of these binder models
+    carry side chains at all, and shape complementarity is a property of a
+    surface those models do not have; and my implementation is independent of
+    Rosetta's.
+  </p>
+  <p>
+    The honest claim is narrower and still worth having: <em class="q">on this
+    dataset, the product form does not rescue geometry</em> — and the obvious
+    objection to the earlier result, that a linear model could not have seen a
+    multiplicative effect, has now been closed by direct test rather than by
+    argument.
+  </p>
+</div>
+
+<p>
+  Reimplementing their statistic is also where the most useful bug of this
+  work turned up. Checked against a crystallographic antibody–antigen interface
+  with a published value, my first version returned
+  <span class="n" data-n="sc.without_trim">0.457</span> against a band of
+  <span class="n" data-n="sc.published_lo">0.64</span>–<span class="n" data-n="sc.published_hi">0.68</span>:
+  it was missing Lawrence and Colman's 1.5&nbsp;Å peripheral trim. With the trim
+  it returns <span class="n" data-n="sc.reference_value">0.612</span>, and a
+  sweep over the trim width peaks at exactly the published 1.5&nbsp;Å. A smaller
+  probe radius would land it inside the band; I did not use one, because
+  choosing a parameter <em>because</em> it reproduces the expected answer is
+  fitting the method to the result. The residual
+  <span class="n" data-n="sc.worst_gap">0.082</span> is recorded instead.
+</p>
 
 <p>
   The same paper <strong>agrees</strong> with the first study on both of its
@@ -495,6 +589,11 @@
 <h2>What this is not</h2>
 
 <ul>
+  <li>
+    <strong>Half of the replication could not be run.</strong> The stronger of
+    the two published combinations uses Rosetta interface energy, which needs
+    a licence this work does not have. Nothing above speaks to it.
+  </li>
   <li>
     <strong>No design here has been made or tested.</strong> Nothing has been
     submitted anywhere. The pipeline runs end to end, but on hardware that

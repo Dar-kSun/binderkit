@@ -135,6 +135,8 @@ def test_every_displayed_number_is_annotated() -> None:
         "14",  # target count, stated beside an annotated count
         "2025",  # the year of the cited paper
         "3,766",  # the cited paper's corpus size
+        "11.6%",  # the cited paper's binder rate, quoted from it
+        "1.5",  # the published peripheral-trim width, a method parameter
         "1,440",  # the dataset's size, stated in the footer
         "1,189",  # study 2's n, also shown annotated
         "20",  # the competition's submission cap
@@ -157,6 +159,7 @@ def test_summary_quotes_only_published_numbers(numbers: dict) -> None:
     allowed = displays | {
         "95%",  # the confidence level itself, not a result
         "0.03",  # an illustrative magnitude, not a result
+        "1.5",  # the published peripheral-trim width, a method parameter
         "1,440",
         "3,766",
         "2025",

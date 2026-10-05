@@ -92,3 +92,94 @@ means the operating point does not transfer to an unscreened pipeline.
 - Grouping by target throughout.
 - The 89% inter-assay agreement ceiling.
 - The decision to treat confidence as a soft ranking signal.
+
+---
+
+# Study 3: the replication, and what it does to study 2
+
+Run to try to break study 2, with the decision rules fixed in docs/SPEC.md
+section 8.6 before any output was seen. Full numbers in
+`studies/replication/REPORT.md`.
+
+## 11. SURVIVES, STRENGTHENED - "no geometry metric adds to confidence"
+
+The standing objection to study 2 was that it added geometry as a **linear**
+term, while the published positive result uses a **product**, and a logistic
+model in (confidence, geometry) cannot represent an interaction unless it is
+handed one. That objection is now answered directly for shape complementarity,
+on 1,153 designs across 15 targets:
+
+| Test | Confidence | Confidence x Sc | Difference | 95% CI |
+|---|---|---|---|---|
+| (a) mean within-target AP, their measure | 0.582 | 0.521 | **-0.061** | -0.108 to -0.017 |
+| (b) mean within-target AUROC, ours | 0.746 | 0.698 | **-0.048** | -0.091 to -0.008 |
+| (c) LOTO model, + Sc linearly | 0.746 | 0.746 | -0.001 | -0.005 to +0.005 |
+| (c) LOTO model, + explicit interaction | 0.746 | 0.744 | -0.002 | -0.019 to +0.014 |
+
+(a) and (b) agree, so the AP-versus-AUROC choice is not what decides this; and
+the model handed the interaction explicitly still does not improve.
+
+One contrast is worth reading carefully. The **raw product measurably hurts**
+while the **fitted interaction is merely inert**. An unweighted product forces
+the geometry in at full strength, so Sc's noise goes straight into the
+ranking; a logistic model given the same interaction can set its coefficient
+near zero, and does. Both readings say the same thing: there is no signal here
+for the model to find.
+
+Precision@20 - the number this competition actually faces - is 0.433 for
+confidence and 0.400 for the product, against a 27.0% base rate.
+
+**The pre-registered rule that applies is "cannot reproduce their result", and
+its instruction is explicit: do not claim they are wrong.** Three times the
+data beats one campaign. The confounds are real and are listed in the study
+report: their 11.6% binder rate against our 27.0%, geometry on complexes they
+re-predicted against our design models, side chains on only 191 of 1,153
+binder models here, their heterogeneous binding definitions against our single
+rubric, and an Sc implementation that is independent rather than Rosetta's.
+
+## 12. NOT ATTEMPTED - the half of their result that matters more
+
+`interface_dG` and `interface_dSASA` come from Rosetta's
+`InterfaceAnalyzerMover`. PyRosetta is free for academic use but is
+distributed under a per-user licence requiring credentials this environment
+does not have, and section 8.6 forbids substituting a different energy
+function and calling it a replication.
+
+So `ipSAE_min x interface_dG/dSASA`, **their strongest reported combination,
+remains untested here**, and every statement about study 3 says so. This is
+the single most valuable thing the author could unblock: it needs a licence
+request and a re-run, not new data or new compute.
+
+## 13. NEW - the Sc implementation, and what validating it caught
+
+No per-design reference value for shape complementarity exists in the release,
+so the implementation could not be checked the way the contact counts were
+(981/981 exact). It was checked against an external published result instead,
+which is the direction section 8.9 calls the cheapest credibility available.
+
+It found a real defect. Without Lawrence and Colman's 1.5 A peripheral trim,
+the implementation returned **0.457** on a crystallographic antibody-antigen
+interface whose published band is 0.64-0.68 - 0.2 low. With the trim it
+returns **0.612**, and a sweep over the trim width peaks at exactly the
+published 1.5 A, which is independent confirmation that the trim was the
+missing piece rather than a convenient fudge.
+
+A 1.4 A probe would put it inside the published band. It was **not** adopted:
+choosing a parameter because it reproduces the expected answer is fitting the
+method to the result. The residual gap of about 0.05, attributable to not
+reconstructing the re-entrant surface, is recorded instead, and absolute Sc
+values from this repo must not be compared with published thresholds. Only
+within-target ranking is used downstream, which a constant offset cannot
+change.
+
+## What study 3 changes, and what it does not
+
+- **Changes:** the geometry conclusion may now be stated as surviving a direct
+  test of the product form, for shape complementarity. The repo is no longer
+  an unreplicated negative standing against a published positive on that half.
+- **Does not change:** any number in study 1 or study 2. Re-running the
+  geometry metrics with Sc added left every other column bit-identical and the
+  contact validation at 981/981.
+- **Still outstanding:** the energy half, and the design-model-versus-co-fold
+  question, which remains the most plausible single explanation of any
+  residual disagreement and needs GPU time.

@@ -1,0 +1,144 @@
+{
+  "n_designs": 1189,
+  "n_targets": 15,
+  "base_rate": 0.2708158116063919,
+  "features": {
+    "shape_complementarity": {
+      "label": "Lawrence-Colman shape complementarity",
+      "attempted": true,
+      "note": "licence-free reimplementation, validated against published bands"
+    },
+    "interface_dG_dSASA": {
+      "label": "Rosetta interface dG per buried area",
+      "attempted": false,
+      "note": "PyRosetta requires licence credentials not present in this environment, and section 8.6 forbids substituting another energy function and calling it a replication"
+    }
+  },
+  "arms": {
+    "shape_complementarity": {
+      "n": 1153,
+      "n_targets": 15,
+      "base_rate": 0.2697311361665221,
+      "a_their_way": {
+        "feature": "shape_complementarity",
+        "base_rate": 0.2697311361665221,
+        "ap_confidence": 0.5816191271303337,
+        "ap_product": 0.5208929345141534,
+        "ap_feature_alone": 0.3275069625139803,
+        "ap_difference": {
+          "name_a": "ipsae_mean x shape_complementarity",
+          "name_b": "ipsae_mean",
+          "stat_a": 0.5208929345141534,
+          "stat_b": 0.5816191271303337,
+          "difference": -0.060726192616180286,
+          "ci_lo": -0.10773628875532217,
+          "ci_hi": -0.01685793805740863,
+          "sign_consistency": 0.9973333333333333,
+          "distinguishable": true
+        },
+        "precision_at_k": {
+          "10": {
+            "confidence": 0.4666666666666666,
+            "product": 0.4466666666666666,
+            "difference": -0.020000000000000018,
+            "n_targets": 15,
+            "base_rate": 0.2697311361665221
+          },
+          "20": {
+            "confidence": 0.4333333333333333,
+            "product": 0.39999999999999997,
+            "difference": -0.033333333333333326,
+            "n_targets": 15,
+            "base_rate": 0.2697311361665221
+          },
+          "50": {
+            "confidence": 0.36,
+            "product": 0.34428571428571425,
+            "difference": -0.015714285714285736,
+            "n_targets": 14,
+            "base_rate": 0.2697311361665221
+          }
+        }
+      },
+      "b_our_way": {
+        "feature": "shape_complementarity",
+        "auroc_confidence": 0.7462931679310122,
+        "auroc_product": 0.6979457783139544,
+        "auroc_feature_alone": 0.5275677051055853,
+        "difference": {
+          "name_a": "ipsae_mean x shape_complementarity",
+          "name_b": "ipsae_mean",
+          "stat_a": 0.6979457783139544,
+          "stat_b": 0.7462931679310122,
+          "difference": -0.04834738961705776,
+          "ci_lo": -0.09094913639495908,
+          "ci_hi": -0.007874502853595549,
+          "sign_consistency": 0.9913333333333333,
+          "distinguishable": true
+        }
+      },
+      "c_linear_then_interaction": {
+        "feature": "shape_complementarity",
+        "linear": {
+          "name_a": "model(confidence, shape_complementarity)",
+          "name_b": "model(confidence)",
+          "stat_a": 0.7457544992845673,
+          "stat_b": 0.7462931679310122,
+          "difference": -0.0005386686464449175,
+          "ci_lo": -0.004931232474909161,
+          "ci_hi": 0.004521479608607174,
+          "sign_consistency": 0.5953333333333334,
+          "distinguishable": false
+        },
+        "interaction": {
+          "name_a": "model(confidence, shape_complementarity, confidence x shape_complementarity)",
+          "name_b": "model(confidence)",
+          "stat_a": 0.7440259050259094,
+          "stat_b": 0.7462931679310122,
+          "difference": -0.002267262905102818,
+          "ci_lo": -0.018795409696111192,
+          "ci_hi": 0.014183923927685933,
+          "sign_consistency": 0.6246666666666667,
+          "distinguishable": false
+        }
+      },
+      "feature_summary": {
+        "mean": 0.5521695600095002,
+        "sd": 0.15895892930697605,
+        "min": -0.3031916494170822,
+        "max": 0.843300129934926
+      },
+      "all_atom_subset": {
+        "n": 191,
+        "n_targets": 14,
+        "base_rate": 0.16753926701570682,
+        "auroc_confidence": 0.5876780626780627,
+        "auroc_product": 0.58545425767648,
+        "auroc_feature_alone": 0.4689280883725328,
+        "ap_confidence": 0.5059033639468422,
+        "ap_product": 0.5031653406653407,
+        "difference": {
+          "name_a": "ipsae_mean x shape_complementarity (all-atom)",
+          "name_b": "ipsae_mean (all-atom)",
+          "stat_a": 0.58545425767648,
+          "stat_b": 0.5876780626780627,
+          "difference": -0.0022238050015827016,
+          "ci_lo": -0.12858539094650207,
+          "ci_hi": 0.11568452380952382,
+          "sign_consistency": 0.50375,
+          "distinguishable": false
+        }
+      },
+      "sc_by_model_status": {
+        "False": {
+          "n": 962,
+          "mean": 0.5621848553828952
+        },
+        "True": {
+          "n": 191,
+          "mean": 0.5017260304325052
+        }
+      }
+    }
+  }
+}
