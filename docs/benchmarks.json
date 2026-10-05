@@ -1,0 +1,125 @@
+{
+  "generated_utc": "2026-10-05T05:53:06Z",
+  "hardware": {
+    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "vram_mib": 8188,
+    "cpu_cores": 20,
+    "ram_gb": 23.7,
+    "free_disk_gb": 36.0,
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.14",
+    "tier": "C",
+    "torch": "not installed",
+    "cuda_available": null
+  },
+  "stages": [
+    {
+      "stage": "target_prep (cached)",
+      "status": "measured",
+      "seconds": 0.0,
+      "seconds_per_item": 0.0,
+      "n_items": 1,
+      "peak_rss_mb": 96.0,
+      "peak_vram_mb": null,
+      "note": ""
+    },
+    {
+      "stage": "generate (fixture)",
+      "status": "measured",
+      "seconds": 0.003,
+      "seconds_per_item": 0.00025,
+      "n_items": 12,
+      "peak_rss_mb": 97.3,
+      "peak_vram_mb": null,
+      "note": ""
+    },
+    {
+      "stage": "sequence design (fixture)",
+      "status": "measured",
+      "seconds": 0.003,
+      "seconds_per_item": 4.1666666666666665e-05,
+      "n_items": 72,
+      "peak_rss_mb": 97.7,
+      "peak_vram_mb": null,
+      "note": ""
+    },
+    {
+      "stage": "co-fold (MOCK, not a prediction)",
+      "status": "measured",
+      "seconds": 0.002,
+      "seconds_per_item": 2.777777777777778e-05,
+      "n_items": 72,
+      "peak_rss_mb": 98.0,
+      "peak_vram_mb": null,
+      "note": ""
+    },
+    {
+      "stage": "sequence metrics",
+      "status": "measured",
+      "seconds": 0.043,
+      "seconds_per_item": 0.0005972222222222222,
+      "n_items": 72,
+      "peak_rss_mb": 99.6,
+      "peak_vram_mb": null,
+      "note": ""
+    },
+    {
+      "stage": "novelty: MMseqs2 vs 1.1M PDB seqs",
+      "status": "measured",
+      "seconds": 24.363,
+      "seconds_per_item": 0.338375,
+      "n_items": 72,
+      "peak_rss_mb": 107.9,
+      "peak_vram_mb": 0.0,
+      "note": ""
+    },
+    {
+      "stage": "interface geometry (real coords)",
+      "status": "measured",
+      "seconds": 16.119,
+      "seconds_per_item": 0.32238,
+      "n_items": 50,
+      "peak_rss_mb": 494.4,
+      "peak_vram_mb": 0.0,
+      "note": ""
+    },
+    {
+      "stage": "paired bootstrap (2000 reps)",
+      "status": "measured",
+      "seconds": 6.114,
+      "seconds_per_item": 0.003057,
+      "n_items": 2000,
+      "peak_rss_mb": 501.1,
+      "peak_vram_mb": 0.0,
+      "note": ""
+    },
+    {
+      "stage": "AUROC (rank-sum)",
+      "status": "measured",
+      "seconds": 9.432,
+      "seconds_per_item": 0.0004716,
+      "n_items": 20000,
+      "peak_rss_mb": 501.1,
+      "peak_vram_mb": 0.0,
+      "note": ""
+    }
+  ],
+  "gpu_measurements": {
+    "device": "NVIDIA GeForce RTX 4060 Laptop GPU",
+    "total_vram_mib": 8188,
+    "free_vram_mib_observed": 7106,
+    "fp16_matmul_tflops": 17.3,
+    "fp16_matmul_tflops_small_tensor": 20.0,
+    "naive_allocate_until_oom_mib": 18688,
+    "naive_probe_warning": "An allocate-until-failure probe reports 18688 MiB on an 8188 MiB card because the Windows driver oversubscribes into system RAM. Do not size models this way; the real ceiling is 8188 MiB.",
+    "esm2_35M": {
+      "params_millions": 33.5,
+      "load_seconds": 3.5,
+      "ms_per_sequence": 2.15,
+      "tokens": 96,
+      "peak_vram_mib": 195,
+      "status": "measured"
+    },
+    "torch": "2.6.0+cu124"
+  }
+}
