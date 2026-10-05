@@ -132,6 +132,32 @@ number this repo quotes:
 - 15 targets is a small number of independent units. The grouped bootstrap CI
   on the headline metric is correspondingly wide: 0.671 to 0.839.
 
+## 7b. Study 3: half of the replication could not be run
+
+- **`interface_dG` and `interface_dSASA` were not computed.** They require
+  PyRosetta, which is free for academic use but distributed under a
+  per-user licence requiring credentials this environment does not have.
+  docs/SPEC.md section 8.6 forbids substituting a different energy function
+  and calling it a replication, so the arm is reported as not attempted.
+  **This is the stronger of the two combinations in the result being
+  replicated**, so the most important half of study 3 is untested.
+- **Shape complementarity is a reimplementation, not Rosetta's.** It uses the
+  published parameters with nothing tuned, and is validated against
+  crystallographic interfaces with published values, but it reads about
+  0.05-0.08 low in absolute terms because the re-entrant portion of the
+  solvent-excluded surface is not reconstructed. Absolute values must not be
+  compared with published Sc thresholds. Only within-target ranking is used,
+  which a constant offset cannot change.
+- **Most binder models have no side chains.** Shape complementarity is a
+  property of the molecular surface, so on a binder modelled as backbone plus
+  C-beta it describes a surface the real molecule does not have. The all-atom
+  subset is small and its binder rate differs from the full set, so it is the
+  weaker test rather than the cleaner one.
+- **The geometry is computed on design models, not on co-folds.** The result
+  being replicated used complexes its authors re-predicted. That difference
+  remains the most plausible single explanation of any disagreement, and
+  testing it needs GPU time this machine does not have.
+
 ## 8. Environment and process
 
 - **Nothing here ran in a sandbox.** Development was on native Windows with no

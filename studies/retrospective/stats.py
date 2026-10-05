@@ -204,6 +204,119 @@ def within_group_mean_difference(
 
 
 # --------------------------------------------------------------------------
+# Average precision and precision@k
+# --------------------------------------------------------------------------
+#
+# Study 1 and study 2 reported within-target AUROC throughout. Overath et al.
+# report average precision, chosen because the positive class is rare, and
+# precision@k. AUROC averages over the whole ranking; AP and precision@k
+# weight its top. Under 27% positives they can disagree, and a comparison of
+# our AUROC against their AP is not a comparison at all, so study 3 reports
+# both (docs/SPEC.md section 8.6 test (a) and (b)).
+
+
+def average_precision(y: np.ndarray, s: np.ndarray) -> float:
+    """Area under the precision-recall curve, by the step-wise definition.
+
+    AP = sum over ranks of (precision at that rank) * (change in recall),
+    which is the standard estimator and does not interpolate. Ties are broken
+    pessimistically -- all tied items are taken together -- so a constant
+    score returns the base rate rather than something flattering.
+
+    Parameters
+    ----------
+    y
+        Binary outcome, 1 for the positive class.
+    s
+        Score; higher is predicted more likely positive.
+
+    Returns
+    -------
+    float
+        AP in (0, 1], or NaN when there are no positives. The useful
+        comparison is always against the base rate, which is what a random
+        ranker achieves.
+    """
+    y = np.asarray(y).astype(int)
+    s = np.asarray(s, dtype=float)
+    ok = ~np.isnan(s)
+    y, s = y[ok], s[ok]
+    n_pos = int(y.sum())
+    if n_pos == 0 or len(y) == 0:
+        return float("nan")
+
+    order = np.argsort(-s, kind="mergesort")
+    y_sorted, s_sorted = y[order], s[order]
+
+    # Group tied scores: within a tie the ranking is arbitrary, so precision
+    # is evaluated only at the end of each tied block.
+    tp = np.cumsum(y_sorted)
+    seen = np.arange(1, len(y_sorted) + 1)
+    last_of_block = np.ones(len(s_sorted), dtype=bool)
+    last_of_block[:-1] = s_sorted[:-1] != s_sorted[1:]
+
+    precision = tp[last_of_block] / seen[last_of_block]
+    recall = tp[last_of_block] / n_pos
+    d_recall = np.diff(np.concatenate([[0.0], recall]))
+    return float((precision * d_recall).sum())
+
+
+def mean_within_target_ap(y: np.ndarray, s: np.ndarray, groups: np.ndarray) -> float:
+    """Average precision computed inside each target, then averaged.
+
+    Targets with no positives contribute nothing rather than zero, for the
+    same reason single-class targets are dropped from the AUROC mean.
+    """
+    vals = []
+    for g in np.unique(groups):
+        m = groups == g
+        v = average_precision(y[m], s[m])
+        if v == v:
+            vals.append(v)
+    return float(np.mean(vals)) if vals else float("nan")
+
+
+def precision_at_k(y: np.ndarray, s: np.ndarray, k: int) -> float:
+    """Fraction of the top `k` by score that are positive.
+
+    NaN when fewer than `k` items are scored, rather than silently reporting
+    precision over a shorter list, which would not be precision@k.
+    """
+    y = np.asarray(y).astype(int)
+    s = np.asarray(s, dtype=float)
+    ok = ~np.isnan(s)
+    y, s = y[ok], s[ok]
+    if len(y) < k or k <= 0:
+        return float("nan")
+    top = np.argsort(-s, kind="mergesort")[:k]
+    return float(y[top].mean())
+
+
+def mean_within_target_precision_at_k(
+    y: np.ndarray, s: np.ndarray, groups: np.ndarray, k: int
+) -> tuple[float, int]:
+    """Precision@k inside each target, averaged over the targets large enough.
+
+    This is the number the competition actually faces: a fixed number of
+    designs submitted against one target, not a slice of a pooled ranking.
+
+    Returns
+    -------
+    value, n_targets
+        ``n_targets`` is how many targets had at least `k` scored designs, and
+        it must be reported: precision@50 over four targets is a different
+        claim from precision@10 over fourteen.
+    """
+    vals = []
+    for g in np.unique(groups):
+        m = groups == g
+        v = precision_at_k(y[m], s[m], k)
+        if v == v:
+            vals.append(v)
+    return (float(np.mean(vals)) if vals else float("nan")), len(vals)
+
+
+# --------------------------------------------------------------------------
 # Bootstrap machinery
 # --------------------------------------------------------------------------
 

@@ -1,0 +1,38 @@
+{
+  "reference": "work\\cache\\6ARU.pdb",
+  "n_atoms": 7923,
+  "parameters": {
+    "probe": 1.7,
+    "density": 15.0,
+    "weight": 0.5,
+    "peripheral_trim": 1.5,
+    "tuned": false
+  },
+  "mean_vdw_radius": 1.6397235895494129,
+  "cases": [
+    {
+      "name": "6ARU EGFR domain III vs cetuximab Fab",
+      "kind": "antibody-antigen",
+      "published_lo": 0.64,
+      "published_hi": 0.68,
+      "sc": 0.611742504148394,
+      "n_binder_points": 7100,
+      "n_target_points": 6880,
+      "gap_to_band": -0.028257495851605974,
+      "in_band": false
+    },
+    {
+      "name": "6ARU Fab heavy vs light chain",
+      "kind": "permanent oligomeric pair",
+      "published_lo": 0.7,
+      "published_hi": 0.76,
+      "sc": 0.6179409050084272,
+      "n_binder_points": 13218,
+      "n_target_points": 12360,
+      "gap_to_band": -0.08205909499157271,
+      "in_band": false
+    }
+  ],
+  "worst_absolute_gap": 0.08205909499157271,
+  "passes_gate": true
+}

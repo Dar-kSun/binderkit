@@ -244,6 +244,10 @@ def cmd_study(args: argparse.Namespace) -> int:
         from studies.interface_geometry.report import main as geom_main
 
         return geom_main()
+    if args.which == "replication":
+        from studies.replication.run import main as rep_main
+
+        return rep_main()
     log.error("unknown study %r", args.which)
     return 2
 
@@ -270,7 +274,7 @@ def build_parser() -> argparse.ArgumentParser:
     v.set_defaults(func=cmd_validate)
 
     s = sub.add_parser("study", help="run a study")
-    s.add_argument("which", choices=["retrospective", "geometry"])
+    s.add_argument("which", choices=["retrospective", "geometry", "replication"])
     s.add_argument("--force", action="store_true", help="re-download source data")
     s.set_defaults(func=cmd_study)
 

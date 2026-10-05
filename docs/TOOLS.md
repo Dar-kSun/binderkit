@@ -82,10 +82,46 @@ All ten folded the binder as a single sequence with no MSA, five seeds each.
 - `uplifting-biomolecular-modeling` is noted in docs/SPEC.md as not maintained and
   not accepting contributions. It was not used; if it ever is, pin a commit.
 
+## Considered and not used
+
+### PyRosetta — **not licensed, not installed, not invoked**
+
+Study 3 (docs/SPEC.md section 8.6) needs `interface_dG` and `interface_dSASA`
+from Rosetta's `InterfaceAnalyzerMover`, plus the Lawrence-Colman `sc` filter,
+because those are the features the result being replicated uses.
+
+| | |
+|---|---|
+| Licence | RosettaCommons; free for academic and non-commercial use, **but issued per user on request** |
+| Distribution | not on PyPI; a credentialed channel, which `pip install pyrosetta` confirms (`No matching distribution found`) |
+| Status here | **not obtained.** Acquiring it requires registering an account and holding a credential, which this project's operating rules do not permit to be done unattended |
+
+Section 8.6 anticipates this and is explicit about the consequence: run the
+shape-complementarity arm only, report the dG arm as **not attempted**, and
+**do not substitute a different energy function and call it a replication**.
+That is what was done. No Rosetta-derived number appears anywhere in this
+repository.
+
+The author can lift this by obtaining a licence; the study then needs only the
+two features added to `studies/interface_geometry/compute_metrics.py` and a
+re-run. Until then, the stronger half of the published result this repo
+disagrees with remains untested here, and every statement about it says so.
+
+### Shape complementarity — reimplemented licence-free
+
+| | |
+|---|---|
+| Definition | Lawrence MC, Colman PM, *J Mol Biol* 234:946-950 (1993) |
+| Implementation | `binderkit.geometry.shape_complementarity`, NumPy and SciPy only |
+| Parameters | the published ones: probe 1.7 A, 15 dots/A^2, w = 0.5, 1.5 A peripheral trim. **None tuned.** |
+| Validation | `studies/interface_geometry/validate_sc.py` against crystallographic interfaces with published bands |
+| Known bias | reads **about 0.05-0.08 low** in absolute terms, because the re-entrant surface is not reconstructed. Not comparable with published Sc thresholds; used only for within-dataset ranking, which a constant offset cannot change. |
+
 ## Environment notes
 
-- Native Windows 11, Python 3.13, no conda. **PyRosetta and OpenMM are awkward
-  or unavailable on 3.13**, which is why no structure-manipulation library is in
-  the dependency list.
+- Native Windows 11, Python 3.13, no conda. OpenMM is awkward or unavailable
+  on 3.13, which is one reason no structure-manipulation library is in the
+  dependency list; PyRosetta's absence is a licence question, above, not a
+  packaging one.
 - The Bash sandbox does not exist on native Windows, so all commands ran
   unsandboxed.

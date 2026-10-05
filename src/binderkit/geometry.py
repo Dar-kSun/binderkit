@@ -377,6 +377,13 @@ class InterfaceMetrics:
     binder_exposed_hydrophobic_sasa: float = float("nan")
     radius_of_gyration: float = float("nan")
     contact_density: float = float("nan")
+    # Lawrence-Colman shape complementarity. Reported for every complex, but
+    # it depends on the molecular surface, so on a binder modelled as backbone
+    # plus C-beta it describes a surface the real molecule does not have.
+    # Always read it beside `binder_has_side_chains`.
+    shape_complementarity: float = float("nan")
+    sc_n_binder_points: int = 0
+    sc_n_target_points: int = 0
     notes: list[str] = field(default_factory=list)
 
 
@@ -540,4 +547,232 @@ def compute_interface(
     m.contact_density = (
         m.n_atom_contacts / m.n_binder_residues if m.n_binder_residues else float("nan")
     )
+
+    sc, n_bp, n_tp = shape_complementarity(st, binder_chain, target_chains)
+    m.shape_complementarity = sc
+    m.sc_n_binder_points, m.sc_n_target_points = n_bp, n_tp
+    if not m.binder_has_side_chains:
+        m.notes.append(
+            "shape complementarity computed on a backbone-plus-C-beta binder: "
+            "the molecular surface is not the real one"
+        )
     return m
+
+
+# --------------------------------------------------------------------------
+# Lawrence-Colman shape complementarity
+# --------------------------------------------------------------------------
+
+#: Probe radius for the molecular surface in the Sc calculation. Lawrence and
+#: Colman used 1.7 A, larger than the 1.4 A water probe used for SASA above.
+SC_PROBE = 1.7
+#: Surface dots per square Angstrom. The original used 15, and the Rosetta
+#: `sc` filter defaults to the same.
+SC_DENSITY = 15.0
+#: Distance weighting in S(a) = (n_a . -n_b) * exp(-w d^2), per the paper.
+SC_WEIGHT = 0.5
+#: Only atoms this close to the partner can carry interface surface.
+SC_ZONE_A = 12.0
+#: Peripheral band discarded from the interface, Angstrom. Lawrence and Colman
+#: trim the rim because its points have no partner directly opposite them, so
+#: the exp(-w d^2) term buries them and drags the median down. Leaving it out
+#: cost 0.15 of Sc on a reference complex; see `studies/interface_geometry/
+#: validate_sc.py`.
+SC_PERIPHERAL_TRIM = 1.5
+
+
+def _surface_dots(
+    coords: np.ndarray,
+    radii: np.ndarray,
+    probe: float,
+    density: float,
+    scored: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Contact-surface points and outward normals for `scored` atoms.
+
+    Dots are laid on each atom's solvent-accessible sphere, discarded where a
+    neighbouring atom of the *same* molecule buries them, then projected back
+    onto the van der Waals sphere. That recovers the contact portion of the
+    molecular surface with the correct outward normal.
+
+    The re-entrant (toroidal and concave) portion of the solvent-excluded
+    surface is not reconstructed. This is a real deviation from Lawrence and
+    Colman and it is recorded in the study report: re-entrant patches sit in
+    the crevices between atoms, which is where a complementary partner packs.
+
+    Parameters
+    ----------
+    coords
+        Every atom of this molecule; all of them occlude.
+    radii
+        Van der Waals radius per atom, Angstrom.
+    probe
+        Probe radius used to build the accessible sphere.
+    density
+        Target dots per square Angstrom of accessible surface.
+    scored
+        Indices of the atoms that may contribute surface.
+
+    Returns
+    -------
+    points, normals
+        Arrays of shape (n_dots, 3); normals are unit outward vectors.
+    """
+    from scipy.spatial import cKDTree
+
+    if len(scored) == 0:
+        return np.zeros((0, 3)), np.zeros((0, 3))
+
+    expanded = radii + probe
+    tree = cKDTree(coords)
+    max_r = float(expanded.max())
+
+    pts: list[np.ndarray] = []
+    nrm: list[np.ndarray] = []
+    templates: dict[int, np.ndarray] = {}  # one sphere per distinct dot count
+    for i in scored:
+        r_acc = expanded[i]
+        n_dots = max(12, int(density * 4.0 * np.pi * r_acc * r_acc))
+        if n_dots not in templates:
+            templates[n_dots] = _sphere_points(n_dots)
+        unit = templates[n_dots]
+        test = coords[i] + unit * r_acc
+
+        neighbours = [j for j in tree.query_ball_point(coords[i], r_acc + max_r) if j != i]
+        if neighbours:
+            nb = coords[neighbours]
+            nr = expanded[neighbours]
+            d2 = ((test[:, None, :] - nb[None, :, :]) ** 2).sum(axis=2)
+            keep = ~(d2 < (nr**2)[None, :]).any(axis=1)
+        else:
+            keep = np.ones(len(test), dtype=bool)
+        if not keep.any():
+            continue
+        u = unit[keep]
+        pts.append(coords[i] + u * radii[i])
+        nrm.append(u)
+
+    if not pts:
+        return np.zeros((0, 3)), np.zeros((0, 3))
+    return np.concatenate(pts), np.concatenate(nrm)
+
+
+def _buried_by(
+    points: np.ndarray, partner: np.ndarray, partner_r: np.ndarray, probe: float
+) -> np.ndarray:
+    """Which surface points the partner molecule buries."""
+    from scipy.spatial import cKDTree
+
+    tree = cKDTree(partner)
+    limit = float((partner_r + probe).max())
+    hit = np.zeros(len(points), dtype=bool)
+    for k, nbrs in enumerate(tree.query_ball_point(points, limit)):
+        if not nbrs:
+            continue
+        d = np.linalg.norm(partner[nbrs] - points[k], axis=1)
+        hit[k] = bool((d < partner_r[nbrs] + probe).any())
+    return hit
+
+
+def _trim_periphery(points: np.ndarray, interface: np.ndarray, band: float) -> np.ndarray:
+    """Drop interface points lying within `band` of the interface rim.
+
+    The rim is found without any geometry: a point is on it when a point that
+    the partner does *not* bury sits nearby on the same surface.
+    """
+    from scipy.spatial import cKDTree
+
+    if band <= 0 or interface.sum() == 0 or (~interface).sum() == 0:
+        return interface
+    outside = cKDTree(points[~interface])
+    d, _ = outside.query(points[interface], k=1)
+    trimmed = interface.copy()
+    trimmed[np.flatnonzero(interface)[d < band]] = False
+    return trimmed if trimmed.any() else interface
+
+
+def shape_complementarity(
+    st: Structure,
+    binder_chain: str,
+    target_chains: set[str],
+    probe: float = SC_PROBE,
+    density: float = SC_DENSITY,
+    weight: float = SC_WEIGHT,
+    trim: float = SC_PERIPHERAL_TRIM,
+) -> tuple[float, int, int]:
+    """Lawrence-Colman shape complementarity statistic for one interface.
+
+    For every surface point on one side that the partner buries, find the
+    nearest buried point on the other side and take the dot product of the
+    outward normals, one of them reversed, damped by separation::
+
+        S(a) = (n_a . -n_b) * exp(-w |a - b|^2)
+
+    Sc is the mean of the two medians, one per direction. It runs from about 0
+    for surfaces that do not match to 1 for a perfect fit. Published values are
+    roughly 0.64-0.68 for protease-inhibitor complexes, 0.64-0.75 for
+    antibody-antigen, and above 0.70 for permanent oligomeric interfaces.
+
+    One deviation from the original remains: the contact surface is used
+    rather than the full solvent-excluded surface, because the re-entrant
+    patches are not reconstructed (see :func:`_surface_dots`). Every parameter
+    is the published one -- probe 1.7 A, 15 dots per square Angstrom, w = 0.5,
+    a 1.5 A peripheral trim -- and none has been tuned to match a reference
+    value. On a crystallographic antibody-antigen complex this returns 0.612
+    against a published band of 0.64-0.68, so it reads **about 0.05 low**; a
+    1.4 A probe would land inside the band, but choosing it because it does
+    would be fitting the method to the answer. Absolute values are therefore
+    not comparable with published Sc thresholds. Ranking within a dataset,
+    which is all the study uses it for, is unaffected by a constant offset.
+
+    This reimplementation exists because PyRosetta, which carries the original,
+    needs a licence credential this environment does not have. It is validated
+    against published ranges rather than against Rosetta, and it must not be
+    described as a Rosetta number.
+
+    Returns
+    -------
+    sc, n_binder_points, n_target_points
+        ``sc`` is NaN when either side contributes no buried surface points.
+    """
+    from scipy.spatial import cKDTree
+
+    bm = st.chain == binder_chain
+    tm = st.chain_mask(target_chains)
+    if bm.sum() == 0 or tm.sum() == 0:
+        return float("nan"), 0, 0
+
+    bc, tc = st.coords[bm], st.coords[tm]
+    br = np.array([VDW_RADII.get(str(e), DEFAULT_VDW) for e in st.element[bm]])
+    tr = np.array([VDW_RADII.get(str(e), DEFAULT_VDW) for e in st.element[tm]])
+
+    # Only atoms near the partner can carry interface surface.
+    b_tree, t_tree = cKDTree(bc), cKDTree(tc)
+    b_near = np.array(sorted({i for lst in t_tree.query_ball_tree(b_tree, SC_ZONE_A) for i in lst}))
+    t_near = np.array(sorted({i for lst in b_tree.query_ball_tree(t_tree, SC_ZONE_A) for i in lst}))
+    if len(b_near) == 0 or len(t_near) == 0:
+        return float("nan"), 0, 0
+
+    bp, bn = _surface_dots(bc, br, probe, density, b_near)
+    tp, tn = _surface_dots(tc, tr, probe, density, t_near)
+    if len(bp) == 0 or len(tp) == 0:
+        return float("nan"), 0, 0
+
+    b_iface = _trim_periphery(bp, _buried_by(bp, tc, tr, probe), trim)
+    t_iface = _trim_periphery(tp, _buried_by(tp, bc, br, probe), trim)
+    if b_iface.sum() == 0 or t_iface.sum() == 0:
+        return float("nan"), int(b_iface.sum()), int(t_iface.sum())
+
+    bp_i, bn_i = bp[b_iface], bn[b_iface]
+    tp_i, tn_i = tp[t_iface], tn[t_iface]
+
+    def directional_median(
+        pts_a: np.ndarray, nrm_a: np.ndarray, pts_b: np.ndarray, nrm_b: np.ndarray
+    ) -> float:
+        d, idx = cKDTree(pts_b).query(pts_a, k=1)
+        dots = (nrm_a * (-nrm_b[idx])).sum(axis=1)
+        return float(np.median(dots * np.exp(-weight * d * d)))
+
+    s_ab = directional_median(bp_i, bn_i, tp_i, tn_i)
+    s_ba = directional_median(tp_i, tn_i, bp_i, bn_i)
+    return float((s_ab + s_ba) / 2.0), int(b_iface.sum()), int(t_iface.sum())
