@@ -703,6 +703,7 @@ def main(force_download: bool = False) -> int:
     payload = {
         "n_designs": a["n"],
         "n_targets": a["n_targets"],
+        "n_binders": a["n_pos"],
         "base_rate": a["n_pos"] / a["n"],
         "headline_metric": a["headline"],
         "headline_within_target_auroc": a["headline_value"],
@@ -712,9 +713,13 @@ def main(force_download: bool = False) -> int:
         "best_baseline_value": a["best_base_value"],
         "paired": {
             f"{p['result'].name_a}_vs_{p['result'].name_b}": {
+                "stat_a": p["result"].stat_a,
+                "stat_b": p["result"].stat_b,
                 "difference": p["result"].difference,
                 "ci_lo": p["result"].ci_lo,
                 "ci_hi": p["result"].ci_hi,
+                "sign_consistency": p["result"].sign_consistency,
+                "n_replicates": p["result"].n_replicates,
                 "distinguishable": bool(p["result"].distinguishable),
             }
             for p in a["paired"]
@@ -723,7 +728,21 @@ def main(force_download: bool = False) -> int:
         "operating_point": a["operating"],
         "calibration_ece": a["calibration"]["ece"],
         "calibration_spearman": a["calibration"]["spearman"],
+        "calibration_bins": [
+            {
+                "lo": b.lo,
+                "hi": b.hi,
+                "n": b.n,
+                "mean_predicted": b.mean_predicted,
+                "observed": b.observed,
+                "obs_lo": b.obs_lo,
+                "obs_hi": b.obs_hi,
+            }
+            for b in a["calibration"]["keep"]
+        ],
         "top_decile_rate": a["calibration"]["top_decile_rate"],
+        "top_decile_n": a["calibration"]["top_decile_n"],
+        "n_metrics_screened": a["n_screened"],
         "n_targets_ci_includes_chance": sum(1 for t in a["per_target"] if t["includes_chance"]),
         "vendor_agreement": vendor_agreement(path),
     }

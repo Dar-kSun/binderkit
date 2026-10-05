@@ -1,6 +1,7 @@
 {
   "n_designs": 1320,
   "n_targets": 15,
+  "n_binders": 354,
   "base_rate": 0.2681818181818182,
   "headline_metric": "ipsae_mean",
   "headline_within_target_auroc": 0.7607066259935332,
@@ -10,33 +11,53 @@
   "best_baseline_value": 0.5886150569920731,
   "paired": {
     "ipsae_mean_vs_ipsae_min_ptxv2": {
+      "stat_a": 0.7607066259935332,
+      "stat_b": 0.732964450235246,
       "difference": 0.02774217575828719,
       "ci_lo": -0.03074392878035402,
       "ci_hi": 0.08081205739147872,
+      "sign_consistency": 0.841,
+      "n_replicates": 2000,
       "distinguishable": false
     },
     "ipsae_mean_vs_LOTO_model": {
+      "stat_a": 0.7607066259935332,
+      "stat_b": 0.7263821886973633,
       "difference": 0.03432443729616996,
       "ci_lo": 0.003946366198672058,
       "ci_hi": 0.06335534248094665,
+      "sign_consistency": 0.987,
+      "n_replicates": 2000,
       "distinguishable": true
     },
     "ipsae_mean_vs_hydrophobic_fraction": {
+      "stat_a": 0.7607066259935332,
+      "stat_b": 0.5886150569920731,
       "difference": 0.17209156900146017,
       "ci_lo": 0.07711932387254704,
       "ci_hi": 0.272600497325659,
+      "sign_consistency": 0.9985,
+      "n_replicates": 2000,
       "distinguishable": true
     },
     "LOTO_model_vs_hydrophobic_fraction": {
+      "stat_a": 0.7263821886973633,
+      "stat_b": 0.5886150569920731,
       "difference": 0.1377671317052902,
       "ci_lo": 0.04565562064690205,
       "ci_hi": 0.23775310767519772,
+      "sign_consistency": 0.9985,
+      "n_replicates": 2000,
       "distinguishable": true
     },
     "ipsae_min_ptxv2_vs_hydrophobic_fraction": {
+      "stat_a": 0.732964450235246,
+      "stat_b": 0.5886150569920731,
       "difference": 0.14434939324317297,
       "ci_lo": 0.06005739425245762,
       "ci_hi": 0.2300623417836461,
+      "sign_consistency": 0.9995,
+      "n_replicates": 2000,
       "distinguishable": true
     }
   },
@@ -62,7 +83,83 @@
   },
   "calibration_ece": 0.07823523322138104,
   "calibration_spearman": 0.523809523809524,
+  "calibration_bins": [
+    {
+      "lo": 0.0,
+      "hi": 0.1,
+      "n": 420,
+      "mean_predicted": 0.04564616287453412,
+      "observed": 0.08333333333333333,
+      "obs_lo": 0.06052732659266593,
+      "obs_hi": 0.1136924762770854
+    },
+    {
+      "lo": 0.1,
+      "hi": 0.2,
+      "n": 213,
+      "mean_predicted": 0.1474623509537607,
+      "observed": 0.22065727699530516,
+      "obs_lo": 0.17018867476288435,
+      "obs_hi": 0.28102363874153546
+    },
+    {
+      "lo": 0.2,
+      "hi": 0.30000000000000004,
+      "n": 116,
+      "mean_predicted": 0.2480110130668509,
+      "observed": 0.3103448275862069,
+      "obs_lo": 0.2333709905497525,
+      "obs_hi": 0.39947770305914454
+    },
+    {
+      "lo": 0.30000000000000004,
+      "hi": 0.4,
+      "n": 151,
+      "mean_predicted": 0.34929443014547235,
+      "observed": 0.41721854304635764,
+      "obs_lo": 0.3415763344828431,
+      "obs_hi": 0.49696834601645423
+    },
+    {
+      "lo": 0.4,
+      "hi": 0.5,
+      "n": 155,
+      "mean_predicted": 0.45124283919874175,
+      "observed": 0.3741935483870968,
+      "obs_lo": 0.3019185376858631,
+      "obs_hi": 0.4525538423455644
+    },
+    {
+      "lo": 0.5,
+      "hi": 0.6000000000000001,
+      "n": 172,
+      "mean_predicted": 0.5484905729637246,
+      "observed": 0.48255813953488375,
+      "obs_lo": 0.40907964360812116,
+      "obs_hi": 0.5567987378442769
+    },
+    {
+      "lo": 0.6000000000000001,
+      "hi": 0.7000000000000001,
+      "n": 53,
+      "mean_predicted": 0.638861420455523,
+      "observed": 0.39622641509433965,
+      "obs_lo": 0.27589211919038936,
+      "obs_hi": 0.5305876421111926
+    },
+    {
+      "lo": 0.7000000000000001,
+      "hi": 0.8,
+      "n": 39,
+      "mean_predicted": 0.7285451384183442,
+      "observed": 0.28205128205128205,
+      "obs_lo": 0.16543325013943294,
+      "obs_hi": 0.43775617322477384
+    }
+  ],
   "top_decile_rate": 0.4015151515151515,
+  "top_decile_n": 132,
+  "n_metrics_screened": 30,
   "n_targets_ci_includes_chance": 4,
   "vendor_agreement": {
     "n_measured_by_both": 1235,
