@@ -1,11 +1,11 @@
 {
-  "n_scored": 39,
-  "n_compared": 39,
+  "n_scored": 64,
+  "n_compared": 64,
   "dsasa_vs_bsa_total": {
-    "pearson_r": 0.9917145244473131,
-    "spearman_r": 0.9803545560460977,
-    "mean_ratio_rosetta_over_ours": 1.0423809297484046,
-    "median_ratio": 1.0384777971363464,
+    "pearson_r": 0.9906400558134976,
+    "spearman_r": 0.9770572973093561,
+    "mean_ratio_rosetta_over_ours": 1.0408545681681411,
+    "median_ratio": 1.037666362373223,
     "gate": 0.9,
     "passes": true
   },
@@ -17,13 +17,13 @@
     ]
   },
   "energy_plausibility": {
-    "n_raw_negative": 4,
-    "n_repacked_negative": 21,
-    "fraction_repacked_negative": 0.5384615384615384,
-    "raw_median": 335.39238103398225,
-    "repacked_median": -1.833788331988302,
+    "n_raw_negative": 17,
+    "n_repacked_negative": 35,
+    "fraction_repacked_negative": 0.546875,
+    "raw_median": 309.79833108466437,
+    "repacked_median": -3.959464242300541,
     "repacked_min": -61.88056845132133,
     "repacked_max": 2701.739623785797,
-    "corr_repacked_dG_with_size": 0.6124564812004534
+    "corr_repacked_dG_with_size": 0.5934391928740799
   }
 }

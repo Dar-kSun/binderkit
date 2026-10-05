@@ -242,6 +242,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--relax", action="store_true", help="run constrained FastRelax first")
     ap.add_argument("--out", default=None, help="output CSV (default: rosetta_metrics.csv)")
     ap.add_argument(
+        "--resume",
+        action="store_true",
+        help=(
+            "append to an existing output file, skipping designs already in "
+            "it. WSL shuts its distro down when the last process exits, which "
+            "killed one run at 64 of 244 with a zero exit code, so a long run "
+            "has to be restartable."
+        ),
+    )
+    ap.add_argument(
         "--all",
         action="store_true",
         help=(
@@ -261,14 +271,27 @@ def main(argv: list[str] | None = None) -> int:
         log.error("nothing to score")
         return 1
 
-    init_pyrosetta()
     out_path = Path(args.out) if args.out else OUT
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
+    done: set[str] = set()
+    if args.resume and out_path.is_file():
+        with out_path.open(encoding="utf-8", newline="") as fh:
+            done = {r["full_name"] for r in csv.DictReader(fh) if r.get("full_name")}
+        before = len(specs)
+        specs = [s for s in specs if s["full_name"] not in done]
+        log.info("resuming: %d already scored, %d left of %d", len(done), len(specs), before)
+        if not specs:
+            log.info("nothing left to score")
+            return 0
+
+    init_pyrosetta()
     rows = []
-    with out_path.open("w", encoding="utf-8", newline="") as fh:
+    mode = "a" if (args.resume and done) else "w"
+    with out_path.open(mode, encoding="utf-8", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=FIELDS)
-        writer.writeheader()
+        if mode == "w":
+            writer.writeheader()
         for i, spec in enumerate(specs, 1):
             row = score_one(spec, relax=args.relax)
             rows.append(row)
