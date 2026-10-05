@@ -93,6 +93,19 @@ def space_free(path: Path) -> Path:
     return _LINK_ROOT / path.name
 
 
+def _attempted_path(out_path: Path) -> Path:
+    """Sidecar recording designs scoring was *started* on.
+
+    Rosetta segfaults on some of these structures, and a segfault takes the
+    whole interpreter with it -- no exception, no error row, and on restart
+    the run marches straight back into the same design. Recording the attempt
+    before making it turns an infinite loop into one lost design: anything
+    present here but absent from the output crashed, and is skipped with its
+    cause recorded.
+    """
+    return out_path.with_suffix(out_path.suffix + ".attempted")
+
+
 def init_pyrosetta() -> None:
     import pyrosetta
 
@@ -101,7 +114,7 @@ def init_pyrosetta() -> None:
     )
 
 
-def read_targets(limit: int | None, all_atom_only: bool) -> list[dict]:
+def read_targets(all_atom_only: bool) -> list[dict]:
     """Designs to score, with the chain assignment the geometry stage used."""
     if not GEOMETRY.is_file():
         raise FileNotFoundError(f"{GEOMETRY} not found; run compute_metrics first")
@@ -125,7 +138,7 @@ def read_targets(limit: int | None, all_atom_only: bool) -> list[dict]:
                     "n_target_residues": int(float(row.get("n_target_residues") or 0)),
                 }
             )
-    return rows[:limit] if limit else rows
+    return rows
 
 
 def map_chains(pose, spec: dict) -> str:
@@ -238,9 +251,23 @@ def score_one(spec: dict, relax: bool) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Rosetta interface energetics for study 3")
-    ap.add_argument("--limit", type=int, default=None, help="score only the first N")
+    ap.add_argument(
+        "--limit", type=int, default=None, help="score at most N designs this invocation"
+    )
     ap.add_argument("--relax", action="store_true", help="run constrained FastRelax first")
     ap.add_argument("--out", default=None, help="output CSV (default: rosetta_metrics.csv)")
+    ap.add_argument(
+        "--shard",
+        default=None,
+        metavar="I/N",
+        help=(
+            "score only shard I of N (0-based), so the set can be run across "
+            "cores. Each shard writes its own file and they are concatenated "
+            "afterwards. Sharding also keeps any single invocation short, "
+            "which matters because a backgrounded WSL process is killed when "
+            "the distro shuts down."
+        ),
+    )
     ap.add_argument(
         "--resume",
         action="store_true",
@@ -263,7 +290,11 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    specs = read_targets(args.limit, all_atom_only=not args.all)
+    specs = read_targets(all_atom_only=not args.all)
+    if args.shard:
+        i, n = (int(x) for x in args.shard.split("/"))
+        specs = [sp for k, sp in enumerate(specs) if k % n == i]
+        log.info("shard %d of %d: %d designs", i, n, len(specs))
     log.info(
         "scoring %d designs (all_atom_only=%s, relax=%s)", len(specs), not args.all, args.relax
     )
@@ -275,15 +306,27 @@ def main(argv: list[str] | None = None) -> int:
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     done: set[str] = set()
+    crashed: set[str] = set()
+    attempted_path = _attempted_path(out_path)
     if args.resume and out_path.is_file():
         with out_path.open(encoding="utf-8", newline="") as fh:
             done = {r["full_name"] for r in csv.DictReader(fh) if r.get("full_name")}
+        if attempted_path.is_file():
+            attempted = {
+                ln.strip() for ln in attempted_path.read_text(encoding="utf-8").splitlines()
+            }
+            crashed = attempted - done
+            if crashed:
+                log.warning("%d design(s) crashed Rosetta previously; skipping", len(crashed))
         before = len(specs)
-        specs = [s for s in specs if s["full_name"] not in done]
+        specs = [s for s in specs if s["full_name"] not in done and s["full_name"] not in crashed]
         log.info("resuming: %d already scored, %d left of %d", len(done), len(specs), before)
         if not specs:
             log.info("nothing left to score")
             return 0
+    if args.limit:
+        specs = specs[: args.limit]
+        log.info("limited to %d this invocation", len(specs))
 
     init_pyrosetta()
     rows = []
@@ -292,7 +335,18 @@ def main(argv: list[str] | None = None) -> int:
         writer = csv.DictWriter(fh, fieldnames=FIELDS)
         if mode == "w":
             writer.writeheader()
+        for name in sorted(crashed):
+            writer.writerow(
+                {
+                    **dict.fromkeys(FIELDS, ""),
+                    "full_name": name,
+                    "error": "SIGSEGV: Rosetta crashed on this structure",
+                }
+            )
         for i, spec in enumerate(specs, 1):
+            # Record the attempt before making it, so a segfault is survivable.
+            with attempted_path.open("a", encoding="utf-8") as af:
+                af.write(spec["full_name"] + "\n")
             row = score_one(spec, relax=args.relax)
             rows.append(row)
             writer.writerow(row)

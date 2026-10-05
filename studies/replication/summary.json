@@ -10,8 +10,8 @@
     },
     "interface_dG_dSASA": {
       "label": "Rosetta interface dG per buried area",
-      "attempted": false,
-      "note": "PyRosetta ships no Windows build (Linux and macOS wheels only); the licence itself is free for non-commercial use and needs no credentials. Section 8.6 forbids substituting another energy function and calling it a replication"
+      "attempted": true,
+      "note": "computed with PyRosetta under WSL on the designs whose binder carries side chains; a Rosetta energy on a backbone-plus-C-beta model is not meaningful, and Rosetta segfaults on some of these structures"
     }
   },
   "arms": {
@@ -137,6 +137,127 @@
         "True": {
           "n": 191,
           "mean": 0.5017260304325052
+        }
+      }
+    },
+    "interface_dG_dSASA": {
+      "n": 173,
+      "n_targets": 12,
+      "base_rate": 0.16184971098265896,
+      "a_their_way": {
+        "feature": "interface_dG_dSASA",
+        "base_rate": 0.16184971098265896,
+        "ap_confidence": 0.5154556856187291,
+        "ap_product": 0.40963557047685434,
+        "ap_feature_alone": 0.4067025011439492,
+        "ap_difference": {
+          "name_a": "ipsae_mean x interface_dG_dSASA",
+          "name_b": "ipsae_mean",
+          "stat_a": 0.40963557047685434,
+          "stat_b": 0.5154556856187291,
+          "difference": -0.10582011514187478,
+          "ci_lo": -0.26894722083564127,
+          "ci_hi": 0.04389840970149586,
+          "sign_consistency": 0.91,
+          "distinguishable": false
+        },
+        "precision_at_k": {
+          "10": {
+            "confidence": 0.27999999999999997,
+            "product": 0.13999999999999999,
+            "difference": -0.13999999999999999,
+            "n_targets": 5,
+            "base_rate": 0.16184971098265896
+          },
+          "20": {
+            "confidence": 0.075,
+            "product": 0.025,
+            "difference": -0.049999999999999996,
+            "n_targets": 2,
+            "base_rate": 0.16184971098265896
+          },
+          "50": {
+            "confidence": 0.08,
+            "product": 0.08,
+            "difference": 0.0,
+            "n_targets": 1,
+            "base_rate": 0.16184971098265896
+          }
+        }
+      },
+      "b_our_way": {
+        "feature": "interface_dG_dSASA",
+        "auroc_confidence": 0.6143956043956044,
+        "auroc_product": 0.5320963428106286,
+        "auroc_feature_alone": 0.5266393394964823,
+        "difference": {
+          "name_a": "ipsae_mean x interface_dG_dSASA",
+          "name_b": "ipsae_mean",
+          "stat_a": 0.5320963428106286,
+          "stat_b": 0.6143956043956044,
+          "difference": -0.0822992615849758,
+          "ci_lo": -0.33951269938174705,
+          "ci_hi": 0.2235999999999998,
+          "sign_consistency": 0.7326666666666667,
+          "distinguishable": false
+        }
+      },
+      "c_linear_then_interaction": {
+        "feature": "interface_dG_dSASA",
+        "linear": {
+          "name_a": "model(confidence, interface_dG_dSASA)",
+          "name_b": "model(confidence)",
+          "stat_a": 0.6151098901098901,
+          "stat_b": 0.6143956043956044,
+          "difference": 0.0007142857142857784,
+          "ci_lo": 0.0,
+          "ci_hi": 0.0022222222222221255,
+          "sign_consistency": 0.65,
+          "distinguishable": false
+        },
+        "interaction": {
+          "name_a": "model(confidence, interface_dG_dSASA, confidence x interface_dG_dSASA)",
+          "name_b": "model(confidence)",
+          "stat_a": 0.6151098901098901,
+          "stat_b": 0.6143956043956044,
+          "difference": 0.0007142857142857784,
+          "ci_lo": 0.0,
+          "ci_hi": 0.0022222222222221255,
+          "sign_consistency": 0.65,
+          "distinguishable": false
+        }
+      },
+      "feature_summary": {
+        "mean": 0.07097061186042955,
+        "sd": 0.35264499067057015,
+        "min": -0.0287923547560937,
+        "max": 3.428732101373542
+      },
+      "all_atom_subset": {
+        "n": 173,
+        "n_targets": 12,
+        "base_rate": 0.16184971098265896,
+        "auroc_confidence": 0.6143956043956044,
+        "auroc_product": 0.5320963428106286,
+        "auroc_feature_alone": 0.5266393394964823,
+        "ap_confidence": 0.5154556856187291,
+        "ap_product": 0.40963557047685434,
+        "difference": {
+          "name_a": "ipsae_mean x interface_dG_dSASA (all-atom)",
+          "name_b": "ipsae_mean (all-atom)",
+          "stat_a": 0.5320963428106286,
+          "stat_b": 0.6143956043956044,
+          "difference": -0.0822992615849758,
+          "ci_lo": -0.34370302052444923,
+          "ci_hi": 0.19536794108669092,
+          "sign_consistency": 0.73125,
+          "distinguishable": false
+        }
+      },
+      "sc_by_model_status": {
+        "True": {
+          "n": 173,
+          "mean": 0.07097061186042955
         }
       }
     }
