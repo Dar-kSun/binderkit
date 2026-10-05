@@ -35,6 +35,11 @@ binderkit = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# studies/ and portfolio/ are analysis code, not installed packages, so they are
+# not on sys.path after `pip install -e .`. Tests import them directly. Running
+# `python -m pytest` hides this by adding the working directory; bare `pytest`,
+# which is what CI runs, does not.
+pythonpath = ["."]
 markers = [
     "slow: requires GPU, network, or a heavy model backend (deselect with -m 'not slow')",
 ]

@@ -171,3 +171,21 @@ Appended each session. Things worth not relearning.
   the one that matters -- a provenance record pointing at a commit that no
   longer exists is worse than no provenance record. `filter-repo` leaves
   `.git/filter-repo/commit-map`; use it rather than re-deriving by hand.
+
+### Tooling
+
+- **Do not write backslash escapes through a quoted shell heredoc.** On this
+  setup `\b` inside a Python string arrived as a literal 0x08 and `"\n"`
+  arrived as a real newline, producing a regex that silently matched nothing
+  and a source file that would not parse. Build escapes with `chr(92)` or
+  write the script to a file first. Both instances were caught within a
+  minute -- one by the linter, one by a failing test -- which is the argument
+  for running both after every mechanical edit, not at the end.
+- **A global search-and-replace needs a diff review, not just a test run.**
+  Replacing `CHANGES.md` with `CHANGEstats.md` in an earlier pass also turned
+  `DATA_NOTES.md` into `DATA_NOTEstats.md`, inside a generated report, where
+  no test could see it. It survived two sessions.
+- **A generator that fights a pre-commit hook will lose once per run.** The
+  report writers appended a trailing blank line and `end-of-file-fixer`
+  removed it, so every regeneration produced a spurious diff. Fix the
+  generator, not the file.
