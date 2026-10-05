@@ -184,8 +184,29 @@ def parse_mmcif(path: Path) -> Structure:
     )
 
 
+def is_protein_chain(st: Structure, chain: str, min_fraction: float = 0.8) -> bool:
+    """Whether a chain is protein rather than nucleic acid or ligand.
+
+    Several targets in the release are not protein-only: Cas9 is modelled as a
+    ribonucleoprotein with an sgRNA chain, RBX1 carries three zinc ions and
+    15-PGDH an NAD cofactor. Counting binder-to-RNA or binder-to-ligand atom
+    pairs as interface contacts inflates the count badly - on some Cas9 designs
+    by a factor of eighty - and makes the numbers incomparable with the
+    release, which counts protein target chains only.
+    """
+    m = st.chain == chain
+    if m.sum() == 0:
+        return False
+    names = st.resname[m]
+    standard = np.isin(names, list(THREE_TO_ONE))
+    return bool(standard.mean() >= min_fraction)
+
+
 def identify_binder_chain(st: Structure, binder_sequence: str) -> tuple[str, set[str]]:
-    """Return (binder chain, target chains), matched by sequence.
+    """Return (binder chain, protein target chains), matched by sequence.
+
+    Non-protein chains are excluded from the target set; see
+    `is_protein_chain` for why that matters.
 
     Matching by sequence rather than by chain order or size: chain naming in
     these files is not guaranteed, and some targets are oligomeric, so "the
@@ -213,7 +234,8 @@ def identify_binder_chain(st: Structure, binder_sequence: str) -> tuple[str, set
         by_len = min(st.chains, key=lambda c: abs(len(st.sequence_of(c)) - target_len))
         log.debug("weak binder match (%.2f) in %s; falling back to length", best_score, st.path)
         best_chain = by_len
-    return best_chain, {c for c in st.chains if c != best_chain}
+    targets = {c for c in st.chains if c != best_chain and is_protein_chain(st, c)}
+    return best_chain, targets
 
 
 # --------------------------------------------------------------------------
@@ -229,25 +251,51 @@ def _sphere_points(n: int = 92) -> np.ndarray:
     return np.stack([np.cos(theta) * np.sin(phi), np.sin(theta) * np.sin(phi), np.cos(phi)], axis=1)
 
 
-def shrake_rupley(coords: np.ndarray, elements: np.ndarray, n_points: int = 92) -> np.ndarray:
+#: An atom's SASA can only change on binding if a partner atom comes within two
+#: expanded radii. The largest expanded radius here is 1.9 + 1.4 = 3.3, so 6.6 A
+#: is the true bound; 10 A is used for margin.
+BSA_ZONE_A = 10.0
+
+
+def shrake_rupley(
+    coords: np.ndarray,
+    elements: np.ndarray,
+    n_points: int = 92,
+    subset: np.ndarray | None = None,
+) -> np.ndarray:
     """Per-atom solvent-accessible surface area, Angstrom squared.
 
     Standard Shrake-Rupley: roll a probe over each atom's expanded sphere and
     count the fraction of test points not buried by a neighbour. A KD-tree
-    keeps it near-linear; the neighbour cutoff is the largest possible pair of
-    expanded radii, so no contact is missed.
+    keeps the neighbour search near-linear, with a cutoff equal to the largest
+    possible pair of expanded radii so no occluder is missed.
+
+    `subset` restricts which atoms are *scored* while every atom in `coords`
+    still occludes. That is what makes buried-surface-area tractable over a
+    thousand complexes: an atom far from the partner chain has identical SASA
+    bound and unbound, so it contributes exactly zero to BSA and need not be
+    evaluated at all. Atoms outside `subset` come back as NaN rather than 0, so
+    a caller that forgets to mask gets an obvious failure instead of a silently
+    wrong total.
     """
     from scipy.spatial import cKDTree
 
-    if len(coords) == 0:
+    n = len(coords)
+    if n == 0:
         return np.zeros(0)
     radii = np.array([VDW_RADII.get(str(e), DEFAULT_VDW) for e in elements]) + PROBE_RADIUS
     sphere = _sphere_points(n_points)
     tree = cKDTree(coords)
     max_r = float(radii.max())
-    areas = np.zeros(len(coords))
 
-    for i in range(len(coords)):
+    if subset is None:
+        scored = range(n)
+        areas = np.zeros(n)
+    else:
+        scored = np.asarray(subset, dtype=int)
+        areas = np.full(n, np.nan)
+
+    for i in scored:
         r_i = radii[i]
         neighbours = tree.query_ball_point(coords[i], r_i + max_r)
         neighbours = [j for j in neighbours if j != i]
@@ -376,20 +424,61 @@ def compute_interface(
     m.n_clashes = int(sum(len(p) for p in tree_t.query_ball_point(bc, CLASH_CUTOFF_A)))
 
     # --- buried surface area --------------------------------------------
-    sasa_complex = shrake_rupley(st.coords, st.element)
-    sasa_binder_alone = shrake_rupley(bc, st.element[bm])
-    sasa_target_alone = shrake_rupley(tc, st.element[tm])
-    m.bsa_total = float(sasa_binder_alone.sum() + sasa_target_alone.sum() - sasa_complex.sum())
-    m.bsa_binder = float(sasa_binder_alone.sum() - sasa_complex[bm].sum())
-    m.binder_sasa_alone = float(sasa_binder_alone.sum())
+    # Only atoms near the partner chain can change SASA on binding, so BSA is
+    # computed on that zone alone. Exact, and roughly fifty times cheaper than
+    # scoring every atom of a 5,000-atom complex three times over.
+    b_idx_all = np.flatnonzero(bm)
+    t_idx_all = np.flatnonzero(tm)
 
+    def _zone(own: np.ndarray, other: np.ndarray) -> np.ndarray:
+        """Indices into `own` that lie within the BSA zone of `other`.
+
+        Returns an empty array when the two chains never approach, which
+        happens for a handful of designs whose model places the binder away
+        from the target entirely.
+        """
+        if len(own) == 0 or len(other) == 0:
+            return np.array([], dtype=int)
+        hits = [
+            np.asarray(p, dtype=int)
+            for p in cKDTree(own).query_ball_point(other, BSA_ZONE_A)
+            if len(p)
+        ]
+        return np.unique(np.concatenate(hits)) if hits else np.array([], dtype=int)
+
+    b_zone_local = _zone(bc, tc)
+    t_zone_local = _zone(tc, bc)
+
+    if len(b_zone_local) == 0 or len(t_zone_local) == 0:
+        m.bsa_total = 0.0
+        m.bsa_binder = 0.0
+        m.bsa_hydrophobic_fraction = float("nan")
+        m.notes.append("no atoms within the BSA zone: chains are not in contact")
+    else:
+        sasa_cx = shrake_rupley(
+            st.coords,
+            st.element,
+            subset=np.concatenate([b_idx_all[b_zone_local], t_idx_all[t_zone_local]]),
+        )
+        sasa_b_alone = shrake_rupley(bc, st.element[bm], subset=b_zone_local)
+        sasa_t_alone = shrake_rupley(tc, st.element[tm], subset=t_zone_local)
+
+        buried_b = sasa_b_alone[b_zone_local] - sasa_cx[b_idx_all[b_zone_local]]
+        buried_t = sasa_t_alone[t_zone_local] - sasa_cx[t_idx_all[t_zone_local]]
+        m.bsa_binder = float(buried_b.sum())
+        m.bsa_total = float(buried_b.sum() + buried_t.sum())
+
+        hydro_zone = np.isin(st.resname[b_idx_all[b_zone_local]], list(HYDROPHOBIC_RES))
+        denom = buried_b.sum()
+        m.bsa_hydrophobic_fraction = (
+            float(buried_b[hydro_zone].sum() / denom) if denom > 0 else float("nan")
+        )
+
+    # Whole-binder SASA is cheap (the binder is small) and is needed in full.
+    sasa_binder_full = shrake_rupley(bc, st.element[bm])
+    m.binder_sasa_alone = float(sasa_binder_full.sum())
     hydro_b = np.isin(st.resname[bm], list(HYDROPHOBIC_RES))
-    buried_per_atom = sasa_binder_alone - sasa_complex[bm]
-    denom = buried_per_atom.sum()
-    m.bsa_hydrophobic_fraction = (
-        float(buried_per_atom[hydro_b].sum() / denom) if denom > 0 else float("nan")
-    )
-    m.binder_exposed_hydrophobic_sasa = float(sasa_binder_alone[hydro_b].sum())
+    m.binder_exposed_hydrophobic_sasa = float(sasa_binder_full[hydro_b].sum())
 
     # --- hydrogen bonds and salt bridges ---------------------------------
     # Only meaningful when BOTH partners carry side chains. Where the binder is

@@ -216,12 +216,16 @@ def cmd_validate(args: argparse.Namespace) -> int:
 
 
 def cmd_study(args: argparse.Namespace) -> int:
-    if args.which != "retrospective":
-        log.error("unknown study %r", args.which)
-        return 2
-    from studies.retrospective.run_study import main as study_main
+    if args.which == "retrospective":
+        from studies.retrospective.run_study import main as study_main
 
-    return study_main(force_download=args.force)
+        return study_main(force_download=args.force)
+    if args.which == "geometry":
+        from studies.interface_geometry.report import main as geom_main
+
+        return geom_main()
+    log.error("unknown study %r", args.which)
+    return 2
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -246,7 +250,7 @@ def build_parser() -> argparse.ArgumentParser:
     v.set_defaults(func=cmd_validate)
 
     s = sub.add_parser("study", help="run a study")
-    s.add_argument("which", choices=["retrospective"])
+    s.add_argument("which", choices=["retrospective", "geometry"])
     s.add_argument("--force", action="store_true", help="re-download source data")
     s.set_defaults(func=cmd_study)
 
