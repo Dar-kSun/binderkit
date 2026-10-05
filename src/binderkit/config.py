@@ -209,29 +209,39 @@ class LiabilityCaps:
 
 
 #: Defaults measured by the retrospective calibration study (docs/SPEC.md
-#: section 8.3), from `studies/retrospective/REPORT.md` and
-#: `studies/retrospective/calibration.json`. These are the only thresholds in
-#: this file backed by experimental outcomes rather than convention.
+#: section 8.3), from `studies/retrospective/REPORT.md`. Revised in session 2
+#: after the conclusions were re-derived with paired confidence intervals; see
+#: `studies/retrospective/CHANGES.md`.
 #:
 #: Study summary: on 1,320 designs against 15 targets with wet-lab outcomes,
-#: the mean ipSAE across ten co-folding predictors (`ipsae_mean`) reached
-#: within-target AUROC 0.761 against 0.589 for the best trivial baseline. The
-#: Youden-optimal cut was 0.635, giving 46.3% precision at 74.3% recall
-#: against a 26.8% base rate.
+#: `ipsae_mean` reached within-target AUROC 0.761 against 0.589 for the best
+#: trivial baseline, a difference of +0.172 (95% CI +0.077 to +0.273). That
+#: comparison is the one that survives every correction applied.
 CALIBRATED_IPSAE_THRESHOLD = 0.635
-#: Measured precision at that threshold, i.e. the fraction of selected designs
-#: that actually bound. Used for honest expectation-setting, never as a claim
-#: about a specific design.
+#: Measured precision at that threshold on the study data (base rate 0.268).
+#:
+#: **This number does not transfer to this pipeline.** The release states that
+#: ipSAE is "the primary confidence metric and the one designs were selected
+#: on", so the evaluation pool was already filtered on it. A pipeline that
+#: generates designs from scratch sees a different score distribution and will
+#: not see this precision at this cut. Keep the threshold as a starting point;
+#: do not quote the precision as an expected hit rate.
 CALIBRATED_PRECISION = 0.463
-#: The study found that averaging predictors beats every individual predictor
-#: (+0.028) while a learned weighting over all 27 metric columns did *worse*
-#: than the plain average (-0.034). So the pipeline averages and does not fit
-#: weights.
+#: Session 1 concluded that averaging ten predictors beats the best single one.
+#: With a paired interval that difference is +0.028, 95% CI -0.031 to +0.081,
+#: which straddles zero: the two cannot be distinguished at this sample size.
+#: One predictor is therefore enough, which is a ~10x saving in co-folding.
+#: A *learned* weighting is still worse than a plain average (+0.034, 95% CI
+#: +0.004 to +0.063), so do not fit weights either.
 PREFER_UNWEIGHTED_PREDICTOR_MEAN = True
-#: Within-target AUROC of `ipsae_mean` on EGFR specifically was 0.669, below
-#: the 0.761 cross-target mean. The metric is weaker on this challenge's target
-#: than on average, which is why it informs ranking but is not a hard filter.
+ONE_PREDICTOR_IS_ENOUGH = True
+#: Per-target AUROC on EGFR was 0.669, but with only 10 binders in 90 designs
+#: its 95% CI is 0.466-0.857, which includes chance. Session 1 read this as
+#: "weaker on EGFR"; it is more honestly "not resolved". 4 of 14 targets have
+#: intervals including chance, which is the real reason confidence must stay a
+#: soft ranking signal rather than a hard filter.
 CALIBRATED_AUROC_ON_EGFR = 0.669
+CALIBRATED_AUROC_ON_EGFR_CI = (0.466, 0.857)
 
 
 def load_calibration(path: Path | None = None) -> dict[str, Any] | None:

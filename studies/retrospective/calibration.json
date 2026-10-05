@@ -1,33 +1,68 @@
 {
-  "source": "Anthropic/claude-protein-binder-design design_summary.csv (CC BY 4.0)",
   "n_designs": 1320,
   "n_targets": 15,
   "base_rate": 0.2681818181818182,
-  "best_single_metric": "ipsae_mean",
-  "best_single_pooled_auroc": 0.7640775052344693,
-  "best_single_within_target_auroc": 0.7607066259935332,
-  "model": {
-    "pooled_auroc": 0.7010328572598286,
-    "auroc_lo": 0.6336428544879659,
-    "auroc_hi": 0.7670757634863669,
-    "within_target_auroc": 0.7263821886973635,
-    "ece": 0.07823523322138104,
-    "n_features": 27.0
+  "headline_metric": "ipsae_mean",
+  "headline_within_target_auroc": 0.7607066259935332,
+  "best_single_predictor": "ipsae_min_ptxv2",
+  "best_single_value": 0.732964450235246,
+  "best_baseline": "hydrophobic_fraction",
+  "best_baseline_value": 0.5886150569920731,
+  "paired": {
+    "ipsae_mean_vs_ipsae_min_ptxv2": {
+      "difference": 0.02774217575828719,
+      "ci_lo": -0.03074392878035402,
+      "ci_hi": 0.08081205739147872,
+      "distinguishable": false
+    },
+    "ipsae_mean_vs_LOTO_model": {
+      "difference": 0.03432443729616996,
+      "ci_lo": 0.003946366198672058,
+      "ci_hi": 0.06335534248094665,
+      "distinguishable": true
+    },
+    "ipsae_mean_vs_hydrophobic_fraction": {
+      "difference": 0.17209156900146017,
+      "ci_lo": 0.07711932387254704,
+      "ci_hi": 0.272600497325659,
+      "distinguishable": true
+    },
+    "LOTO_model_vs_hydrophobic_fraction": {
+      "difference": 0.1377671317052902,
+      "ci_lo": 0.04565562064690205,
+      "ci_hi": 0.23775310767519772,
+      "distinguishable": true
+    },
+    "ipsae_min_ptxv2_vs_hydrophobic_fraction": {
+      "difference": 0.14434939324317297,
+      "ci_lo": 0.06005739425245762,
+      "ci_hi": 0.2300623417836461,
+      "distinguishable": true
+    }
+  },
+  "selection": {
+    "observed_best_metric": "ipsae_mean",
+    "observed_best_value": 0.7607066259935332,
+    "selection_corrected_mean": 0.7674077089291446,
+    "selection_corrected_lo": 0.6886909253247384,
+    "selection_corrected_hi": 0.8468186032940653,
+    "n_metrics_screened": 30,
+    "winner_stability": 0.638,
+    "n_replicates": 2000,
+    "distinct_winners": 8
   },
   "operating_point": {
     "threshold": 0.634719974,
     "sensitivity": 0.7429378531073446,
     "specificity": 0.6842650103519669,
     "precision": 0.4630281690140845,
-    "recall": 0.7429378531073446,
     "n_selected": 568,
-    "n_total": 1320
+    "n_total": 1320,
+    "base_rate": 0.2681818181818182
   },
-  "vendor_agreement_ceiling": 0.89,
-  "figures": [
-    "auroc_pooled_vs_within.png",
-    "calibration.png",
-    "per_target_auroc.png",
-    "binder_rate_by_target.png"
-  ]
+  "calibration_ece": 0.07823523322138104,
+  "calibration_spearman": 0.523809523809524,
+  "top_decile_rate": 0.4015151515151515,
+  "n_targets_ci_includes_chance": 4,
+  "vendor_agreement_ceiling": 0.89
 }
