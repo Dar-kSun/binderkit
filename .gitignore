@@ -5,6 +5,12 @@ __pycache__/
 *.egg-info/
 .ipynb_checkpoints/
 
+# Working directory: weights, databases, caches, downloaded structures.
+# docs/SPEC.md section 3 requires this and session 1 omitted it, so session 2
+# committed 1,309 structures, the MMseqs2 binaries and an 809 MB database
+# before anyone noticed.
+work/
+
 # Data & models (keep large artifacts out of git)
 data/raw/
 data/interim/
