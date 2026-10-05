@@ -150,3 +150,24 @@ Appended each session. Things worth not relearning.
   updated. A report that contradicts its own repo is worse than either version.
 - **Label every number measured or cited, and never average the two.** It makes
   a compute request auditable instead of persuasive.
+
+## Session 4
+
+### Git
+
+- **A `.gitignore` miss is cheap to make and expensive to carry.** 543 MB of
+  MMseqs2 databases, tool archives and cached structures sat in 17 commits of
+  history against 1.7 MB of tracked source. Untracking them (session 2) does
+  not remove them; only a history rewrite does, and only while the history is
+  private. `git filter-repo --path work/ --invert-paths` took **1.46 seconds**
+  and brought `.git` from 544 MB to 1.2 MB. The expensive part was never the
+  rewrite -- it was that nobody could do it from a bridged session, so it
+  waited two sessions and nearly got pushed.
+- **Do the rewrite before the first push, not after.** The window is exactly
+  as long as the history stays private. Session 3 correctly ordered the
+  remote *after* the rewrite for this reason.
+- **A rewrite invalidates every SHA anyone wrote down.** Three citations went
+  stale: two in docs/SPEC.md and one in a submission `provenance.json`, which is
+  the one that matters -- a provenance record pointing at a commit that no
+  longer exists is worse than no provenance record. `filter-repo` leaves
+  `.git/filter-repo/commit-map`; use it rather than re-deriving by hand.
