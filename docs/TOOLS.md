@@ -84,28 +84,25 @@ All ten folded the binder as a single sequence with no MSA, five seeds each.
 
 ## Considered and not used
 
-### PyRosetta — **not licensed, not installed, not invoked**
+### PyRosetta
 
 Study 3 (docs/SPEC.md section 8.6) needs `interface_dG` and `interface_dSASA`
-from Rosetta's `InterfaceAnalyzerMover`, plus the Lawrence-Colman `sc` filter,
-because those are the features the result being replicated uses.
+from Rosetta's `InterfaceAnalyzerMover`, because those are the features the
+result being replicated uses.
 
 | | |
 |---|---|
-| Licence | RosettaCommons; free for academic and non-commercial use, **but issued per user on request** |
-| Distribution | not on PyPI; a credentialed channel, which `pip install pyrosetta` confirms (`No matching distribution found`) |
-| Status here | **not obtained.** Acquiring it requires registering an account and holding a credential, which this project's operating rules do not permit to be done unattended |
+| Licence | PyRosetta Software Non-Commercial License Agreement. **Free for academic, non-profit and government use, with no form, no account and no credentials** — the non-commercial licence now ships with the download. A paid licence through UW CoMotion applies to commercial users only. |
+| Distribution | not on PyPI. `pip install pyrosetta --find-links https://west.rosettacommons.org/pyrosetta/quarterly/release`, or the RosettaCommons conda channel |
+| Platforms | Linux x86-64 and macOS wheels only. **There is no Windows build**; the documented Windows route is WSL. Verified by listing the index: 36 artifacts, 12 `linux_x86_64` and 24 `macosx`, zero `win_amd64`. |
 
-Section 8.6 anticipates this and is explicit about the consequence: run the
-shape-complementarity arm only, report the dG arm as **not attempted**, and
-**do not substitute a different energy function and call it a replication**.
-That is what was done. No Rosetta-derived number appears anywhere in this
-repository.
-
-The author can lift this by obtaining a licence; the study then needs only the
-two features added to `studies/interface_geometry/compute_metrics.py` and a
-re-run. Until then, the stronger half of the published result this repo
-disagrees with remains untested here, and every statement about it says so.
+**An earlier version of this file said the licence required credentials this
+environment did not have. That was wrong**, and it was an inference from
+`pip install pyrosetta` failing rather than a checked fact — the package is
+simply absent from PyPI. The licensing model also changed: non-commercial
+users no longer request a licence at all. The real constraint was always the
+missing Windows build. Corrected here and in
+`studies/retrospective/CHANGEstats.md`.
 
 ### Shape complementarity — reimplemented licence-free
 

@@ -18,13 +18,17 @@ from that command.
 | Their feature | Attempted | Why |
 |---|---|---|
 | `shape_complementarity` | yes | licence-free reimplementation, validated against published bands |
-| `interface_dG_dSASA` | **no** | PyRosetta requires licence credentials not present in this environment, and section 8.6 forbids substituting another energy function and calling it a replication |
+| `interface_dG_dSASA` | **no** | PyRosetta ships no Windows build (Linux and macOS wheels only); the licence itself is free for non-commercial use and needs no credentials. Section 8.6 forbids substituting another energy function and calling it a replication |
 
 Their two reported combinations are `ipSAE_min x interface_dG/dSASA` and
 `LIS x shape_complementarity`. **The first remains untested here.** Any
 statement below applies to the shape-complementarity combination only.
 
-The Sc implementation is licence-free and independent, so it was checked
+The licence was never the obstacle: PyRosetta is free for non-commercial
+use with no form, account or credentials. It ships no Windows build, which
+is a different and more tractable problem.
+
+The Sc implementation is independent of Rosetta, so it was checked
 against interfaces with published values rather than against Rosetta:
 on a crystallographic antibody-antigen complex it returns 0.612 against
 a published band of 0.64-0.68, and on a permanent chain pairing 0.618

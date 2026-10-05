@@ -47,9 +47,10 @@ cannot represent their product unless the interaction is handed to it. So my
 test had not addressed their claim at all.
 
 So I ran the replication, with the decision rules written down first. One of
-their two features is out of reach: interface energy needs a licensed Rosetta
-build, and substituting a different energy function would not be a replication
-of anything, so **their stronger combination remains untested here**. Shape
+their two features was out of reach at first: interface energy needs Rosetta,
+which ships no Windows build, and substituting a different energy function
+would not be a replication of anything, so **their stronger combination is not
+covered by the numbers below**. Shape
 complementarity has a licence-free definition, so I reimplemented it with the
 published parameters and tested the product both their way and mine.
 
@@ -96,7 +97,7 @@ reproduces the expected answer is fitting the method to the result.
 
 ## What this is not
 
-Half the replication could not be run. No design here has been made or tested,
+Half the replication is not covered above. No design here has been made or tested,
 and nothing has been submitted anywhere. Of 1,235 designs measured by two
 independent laboratories, the two agree only 89.0% of the time, which bounds
 how well any score could appear to do. At the measured operating point 46.3%

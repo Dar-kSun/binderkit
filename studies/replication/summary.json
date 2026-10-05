@@ -11,7 +11,7 @@
     "interface_dG_dSASA": {
       "label": "Rosetta interface dG per buried area",
       "attempted": false,
-      "note": "PyRosetta requires licence credentials not present in this environment, and section 8.6 forbids substituting another energy function and calling it a replication"
+      "note": "PyRosetta ships no Windows build (Linux and macOS wheels only); the licence itself is free for non-commercial use and needs no credentials. Section 8.6 forbids substituting another energy function and calling it a replication"
     }
   },
   "arms": {

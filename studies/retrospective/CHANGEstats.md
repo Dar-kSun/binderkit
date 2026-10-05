@@ -183,3 +183,37 @@ change.
 - **Still outstanding:** the energy half, and the design-model-versus-co-fold
   question, which remains the most plausible single explanation of any
   residual disagreement and needs GPU time.
+
+## 14. CORRECTED - "PyRosetta requires licence credentials"
+
+Study 3 shipped with this reason for not testing the interface-energy half of
+Overath et al.'s result:
+
+> PyRosetta requires licence credentials not present in this environment
+
+**That was wrong on both counts, and it was never checked.** It was inferred
+from `pip install pyrosetta` returning *No matching distribution found*, which
+only means the package is absent from PyPI. The facts:
+
+| Claimed | Actual |
+|---|---|
+| licence issued per user on request | **free for academic, non-profit and government use with no form, no account and no credentials** -- the non-commercial licence now ships with the download, and the paid UW CoMotion licence applies to commercial users only |
+| distributed through a credentialed channel | an ordinary `--find-links` index: `pip install pyrosetta --find-links https://west.rosettacommons.org/pyrosetta/quarterly/release` |
+| blocked by licensing | blocked by **platform**: the index carries 36 artifacts, 12 `linux_x86_64` and 24 `macosx`, and **zero** `win_amd64`. There is no Windows build. The documented Windows route is WSL. |
+
+The conclusion -- that the dG arm could not be run on this machine as
+configured -- happened to be right. The reason given for it was not, and a
+reason that is wrong in a published file is a defect whether or not it
+changes the verdict. It also made the problem look permanent when it is not:
+a licence this project cannot obtain is a wall, a missing Windows wheel is an
+afternoon.
+
+**The lesson is the one section 8.9 keeps paying out.** A failed command was
+read as evidence for a claim about licensing that the command could not
+possibly support. The check that would have caught it -- reading the
+distributor's own download page -- took one fetch, and it is the same class
+of error as "no published precedent" in correction 9: an assumption about the
+outside world, stated in a shipped document, that one lookup disproves.
+
+Corrected in `docs/TOOLS.md`, `docs/LIMITATIONS.md`,
+`studies/replication/run.py` and its report, and in `portfolio/`.

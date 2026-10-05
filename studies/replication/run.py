@@ -17,13 +17,13 @@ and the repo has caught its own overreach; if it does not, the thirteen-metric
 null gets much stronger, because the obvious objection has been closed by
 direct test.
 
-**One of their two features could not be computed.** ``interface_dG`` and
-``interface_dSASA`` come from Rosetta's ``InterfaceAnalyzerMover``; PyRosetta
-is free for academic use but is distributed under a licence that requires
-credentials this environment does not have, and section 8.6 forbids
-substituting a different energy function and calling it a replication. Shape
-complementarity has a licence-free definition, so the Sc arm runs and the dG
-arm is reported as not attempted.
+**One of their two features was not computed in the first pass.**
+``interface_dG`` and ``interface_dSASA`` come from Rosetta's
+``InterfaceAnalyzerMover``. PyRosetta is free for academic and non-commercial
+use with no licence form, account or credentials, but it ships no Windows
+build, and section 8.6 forbids substituting a different energy function and
+calling it a replication. Shape complementarity has a licence-free
+definition, so the Sc arm ran and the dG arm was reported as not attempted.
 
 Three tests, in the order section 8.6 fixes:
 
@@ -72,8 +72,9 @@ THEIR_FEATURES = {
         "label": "Rosetta interface dG per buried area",
         "attempted": False,
         "note": (
-            "PyRosetta requires licence credentials not present in this "
-            "environment, and section 8.6 forbids substituting another energy "
+            "PyRosetta ships no Windows build (Linux and macOS wheels only); "
+            "the licence itself is free for non-commercial use and needs no "
+            "credentials. Section 8.6 forbids substituting another energy "
             "function and calling it a replication"
         ),
     },
@@ -336,7 +337,11 @@ def write_report(a: dict) -> Path:
     w("`LIS x shape_complementarity`. **The first remains untested here.** Any")
     w("statement below applies to the shape-complementarity combination only.")
     w("")
-    w("The Sc implementation is licence-free and independent, so it was checked")
+    w("The licence was never the obstacle: PyRosetta is free for non-commercial")
+    w("use with no form, account or credentials. It ships no Windows build, which")
+    w("is a different and more tractable problem.")
+    w("")
+    w("The Sc implementation is independent of Rosetta, so it was checked")
     w("against interfaces with published values rather than against Rosetta:")
     w("on a crystallographic antibody-antigen complex it returns 0.612 against")
     w("a published band of 0.64-0.68, and on a permanent chain pairing 0.618")

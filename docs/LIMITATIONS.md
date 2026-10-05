@@ -134,13 +134,15 @@ number this repo quotes:
 
 ## 7b. Study 3: half of the replication could not be run
 
-- **`interface_dG` and `interface_dSASA` were not computed.** They require
-  PyRosetta, which is free for academic use but distributed under a
-  per-user licence requiring credentials this environment does not have.
-  docs/SPEC.md section 8.6 forbids substituting a different energy function
-  and calling it a replication, so the arm is reported as not attempted.
-  **This is the stronger of the two combinations in the result being
-  replicated**, so the most important half of study 3 is untested.
+- **`interface_dG` and `interface_dSASA` were not computed in the first
+  pass.** They require PyRosetta, which is free for academic use with no
+  licence form, account or credentials, but which ships **no Windows build** —
+  only Linux and macOS wheels. docs/SPEC.md section 8.6 forbids substituting
+  a different energy function and calling it a replication, so the arm was
+  reported as not attempted. **This is the stronger of the two combinations
+  in the result being replicated.** An earlier version of this file gave
+  licensing as the reason; that was wrong, and the correction is recorded in
+  `studies/retrospective/CHANGEstats.md`.
 - **Shape complementarity is a reimplementation, not Rosetta's.** It uses the
   published parameters with nothing tuned, and is validated against
   crystallographic interfaces with published values, but it reads about
