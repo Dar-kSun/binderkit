@@ -203,6 +203,10 @@ pre-commit install          # ruff, whitespace, large-file and banned-term hooks
 pytest -q -m "not slow"     # offline, no GPU, under a minute
 ```
 
+## Repository
+
+<https://github.com/Dar-kSun/binderkit>
+
 ## Licence
 
 MIT for this code; see [`LICENSE`](LICENSE). Data sources carry their own licences; see

@@ -1,5 +1,7 @@
 # portfolio/
 
+Source repository: <https://github.com/Dar-kSun/binderkit>
+
 A derived view of `studies/`, built to be dropped onto a personal website.
 **`studies/` is canonical.** Nothing in here is a source of truth, and nothing
 in here should be edited by hand except the prose.
