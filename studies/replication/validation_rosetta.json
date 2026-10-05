@@ -1,0 +1,29 @@
+{
+  "n_scored": 39,
+  "n_compared": 39,
+  "dsasa_vs_bsa_total": {
+    "pearson_r": 0.9917145244473131,
+    "spearman_r": 0.9803545560460977,
+    "mean_ratio_rosetta_over_ours": 1.0423809297484046,
+    "median_ratio": 1.0384777971363464,
+    "gate": 0.9,
+    "passes": true
+  },
+  "chain_mapping": {
+    "all_rows_verified_against_geometry_counts": true,
+    "distinct_partner_specs": [
+      "A_B",
+      "A_BC"
+    ]
+  },
+  "energy_plausibility": {
+    "n_raw_negative": 4,
+    "n_repacked_negative": 21,
+    "fraction_repacked_negative": 0.5384615384615384,
+    "raw_median": 335.39238103398225,
+    "repacked_median": -1.833788331988302,
+    "repacked_min": -61.88056845132133,
+    "repacked_max": 2701.739623785797,
+    "corr_repacked_dG_with_size": 0.6124564812004534
+  }
+}
