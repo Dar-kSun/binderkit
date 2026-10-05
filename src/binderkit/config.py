@@ -208,6 +208,49 @@ class LiabilityCaps:
     max_lowcomplexity_run: int = 5
 
 
+#: Defaults measured by the retrospective calibration study (docs/SPEC.md
+#: section 8.3), from `studies/retrospective/REPORT.md` and
+#: `studies/retrospective/calibration.json`. These are the only thresholds in
+#: this file backed by experimental outcomes rather than convention.
+#:
+#: Study summary: on 1,320 designs against 15 targets with wet-lab outcomes,
+#: the mean ipSAE across ten co-folding predictors (`ipsae_mean`) reached
+#: within-target AUROC 0.761 against 0.589 for the best trivial baseline. The
+#: Youden-optimal cut was 0.635, giving 46.3% precision at 74.3% recall
+#: against a 26.8% base rate.
+CALIBRATED_IPSAE_THRESHOLD = 0.635
+#: Measured precision at that threshold, i.e. the fraction of selected designs
+#: that actually bound. Used for honest expectation-setting, never as a claim
+#: about a specific design.
+CALIBRATED_PRECISION = 0.463
+#: The study found that averaging predictors beats every individual predictor
+#: (+0.028) while a learned weighting over all 27 metric columns did *worse*
+#: than the plain average (-0.034). So the pipeline averages and does not fit
+#: weights.
+PREFER_UNWEIGHTED_PREDICTOR_MEAN = True
+#: Within-target AUROC of `ipsae_mean` on EGFR specifically was 0.669, below
+#: the 0.761 cross-target mean. The metric is weaker on this challenge's target
+#: than on average, which is why it informs ranking but is not a hard filter.
+CALIBRATED_AUROC_ON_EGFR = 0.669
+
+
+def load_calibration(path: Path | None = None) -> dict[str, Any] | None:
+    """Load the study's `calibration.json`, or None if the study has not run.
+
+    Keeping this a runtime read rather than a hardcoded constant means the
+    config tracks the study instead of drifting from it.
+    """
+    import json
+
+    p = Path(path or "studies/retrospective/calibration.json")
+    if not p.is_file():
+        return None
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
 @dataclass
 class RankConfig:
     """Transparent, multi-criteria ranking (docs/SPEC.md section 6.4)."""
@@ -217,9 +260,13 @@ class RankConfig:
     objective_order: tuple[str, ...] = ("ph_selectivity", "ortholog", "affinity")
     #: Floor on self-consistency before a design is eligible at all.
     min_self_consistency_rmsd: float = 2.0
-    #: Weight on the calibrated confidence score. Set by the section 8 study;
-    #: see studies/retrospective/REPORT.md. Zero until the study has run.
-    calibrated_confidence_weight: float = 0.0
+    #: Confidence cut-off, measured by the section 8 study rather than guessed.
+    #: See CALIBRATED_IPSAE_THRESHOLD above for its provenance.
+    calibrated_ipsae_threshold: float = CALIBRATED_IPSAE_THRESHOLD
+    #: Applied as a soft ranking signal, not a hard filter: the study found the
+    #: metric at or below chance on 1 of 14 targets, and only 0.669 on EGFR, so
+    #: a fixed cut would discard good designs on some targets.
+    use_confidence_as_hard_filter: bool = False
     diversity_aware: bool = True
 
 

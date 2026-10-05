@@ -52,4 +52,5 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["ARG001", "ARG002", "N812"]  # aliasing a module as M is fine in tests
+"tests/*" = ["ARG001", "ARG002", "N812"]
+"studies/*" = ["N806"]  # X for a feature matrix, L for a line accumulator  # aliasing a module as M is fine in tests

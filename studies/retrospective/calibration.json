@@ -1,0 +1,33 @@
+{
+  "source": "Anthropic/claude-protein-binder-design design_summary.csv (CC BY 4.0)",
+  "n_designs": 1320,
+  "n_targets": 15,
+  "base_rate": 0.2681818181818182,
+  "best_single_metric": "ipsae_mean",
+  "best_single_pooled_auroc": 0.7640775052344693,
+  "best_single_within_target_auroc": 0.7607066259935332,
+  "model": {
+    "pooled_auroc": 0.7010328572598286,
+    "auroc_lo": 0.6336428544879659,
+    "auroc_hi": 0.7670757634863669,
+    "within_target_auroc": 0.7263821886973635,
+    "ece": 0.07823523322138104,
+    "n_features": 27.0
+  },
+  "operating_point": {
+    "threshold": 0.634719974,
+    "sensitivity": 0.7429378531073446,
+    "specificity": 0.6842650103519669,
+    "precision": 0.4630281690140845,
+    "recall": 0.7429378531073446,
+    "n_selected": 568,
+    "n_total": 1320
+  },
+  "vendor_agreement_ceiling": 0.89,
+  "figures": [
+    "auroc_pooled_vs_within.png",
+    "calibration.png",
+    "per_target_auroc.png",
+    "binder_rate_by_target.png"
+  ]
+}
