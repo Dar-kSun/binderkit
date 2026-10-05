@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Do in-silico metrics predict binder success?</title>
+<meta name="description" content="A retrospective study of 1,320 published de novo protein binders: which in-silico scores actually predict what the wet lab measures.">
+<style>
+  :root {
+    --bg: #fbfaf8;
+    --panel: #ffffff;
+    --ink: #1c1b19;
+    --ink-soft: #55524d;
+    --ink-faint: #827d75;
+    --rule: #e3dfd8;
+    --accent: #b4522c;
+    --accent-soft: #f5ece7;
+    --good: #2e6b4f;
+    --warn: #8a5a1a;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161513;
+      --panel: #1f1e1b;
+      --ink: #eceae6;
+      --ink-soft: #b5b0a7;
+      --ink-faint: #8b857b;
+      --rule: #322f2a;
+      --accent: #e0855c;
+      --accent-soft: #2a211c;
+      --good: #6fba92;
+      --warn: #d4a259;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161513;
+    --panel: #1f1e1b;
+    --ink: #eceae6;
+    --ink-soft: #b5b0a7;
+    --ink-faint: #8b857b;
+    --rule: #322f2a;
+    --accent: #e0855c;
+    --accent-soft: #2a211c;
+    --good: #6fba92;
+    --warn: #d4a259;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 44rem; margin: 0 auto; padding: 0 16px 6rem; }
+
+  header { padding: 4.5rem 0 2.5rem; border-bottom: 1px solid var(--rule); }
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(1.9rem, 6vw, 2.7rem);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    margin: 0 0 1rem;
+    font-weight: 600;
+  }
+  .standfirst { font-size: 1.1rem; color: var(--ink-soft); margin: 0 0 1.4rem; }
+  .byline { font-size: 0.85rem; color: var(--ink-faint); font-family: var(--mono); }
+  .byline a { color: inherit; }
+
+  h2 {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
+    margin: 3.2rem 0 0.4rem;
+    font-weight: 600;
+  }
+  h3 { font-size: 1.02rem; margin: 2rem 0 0.3rem; letter-spacing: 0.01em; }
+  .kicker {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 3.2rem 0 0;
+  }
+  .kicker + h2 { margin-top: 0.2rem; }
+  p { margin: 0 0 1.1rem; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  strong { font-weight: 650; }
+  em.q { font-style: normal; background: var(--accent-soft); padding: 0 0.22em; border-radius: 2px; }
+
+  .n { font-family: var(--mono); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ci { font-family: var(--mono); font-size: 0.86em; color: var(--ink-faint); white-space: nowrap; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 1.6rem 0 2rem;
+  }
+  .stat { background: var(--panel); padding: 0.95rem 1rem; }
+  .stat .v {
+    font-family: var(--mono);
+    font-size: 1.35rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    display: block;
+    line-height: 1.2;
+  }
+  .stat .k {
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    display: block;
+    margin-top: 0.3rem;
+    line-height: 1.35;
+  }
+
+  figure { margin: 2rem 0; }
+  figure img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid var(--rule);
+    border-radius: 5px;
+    background: #fff;
+  }
+  figcaption { font-size: 0.85rem; color: var(--ink-faint); margin-top: 0.55rem; line-height: 1.5; }
+
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: var(--panel);
+    padding: 1rem 1.1rem;
+    margin: 1.8rem 0;
+    border-radius: 0 5px 5px 0;
+    font-size: 0.97rem;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .h {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.45rem;
+  }
+
+  .tablewrap { overflow-x: auto; margin: 1.4rem 0 1.8rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+  caption { text-align: left; font-size: 0.85rem; color: var(--ink-faint); padding-bottom: 0.5rem; }
+  th, td { text-align: left; padding: 0.5rem 0.7rem 0.5rem 0; border-bottom: 1px solid var(--rule); }
+  th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-faint); font-weight: 600; }
+  td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; padding-right: 0; }
+  .up { color: var(--good); }
+  .down { color: var(--accent); }
+
+  ul { padding-left: 1.1rem; margin: 0 0 1.1rem; }
+  li { margin-bottom: 0.45rem; }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+  }
+  code { font-family: var(--mono); font-size: 0.88em; background: var(--panel); padding: 0.1em 0.33em; border-radius: 3px; border: 1px solid var(--rule); }
+
+  @media (max-width: 460px) {
+    body { font-size: 16px; }
+    header { padding-top: 3rem; }
+    .stat .v { font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Do the scores everyone ranks on actually predict binding?</h1>
+  <p class="standfirst">
+    Designing candidate proteins is now cheap. Testing one in a lab is not, so
+    almost everyone ranks candidates by a structure-prediction confidence score
+    and builds the top twenty. This is a retrospective check of that habit
+    against <span class="n" data-n="study1.n_designs">1320</span> published
+    designs whose wet-lab outcome is known.
+  </p>
+  <p class="byline">darksun &middot; analysis of an openly licensed dataset &middot; every number reproducible from one command</p>
+</header>
+
+<p class="kicker">The result</p>
+<h2>Confidence works, but less neatly than it is used</h2>
+
+<div class="stats">
+  <div class="stat">
+    <span class="v" data-n="study1.vs_baseline.diff">+0.172</span>
+    <span class="k">AUROC over a trivial baseline<br><span class="ci">95% CI <span data-n="study1.vs_baseline.ci_lo">+0.077</span> to <span data-n="study1.vs_baseline.ci_hi">+0.273</span></span></span>
+  </div>
+  <div class="stat">
+    <span class="v" data-n="study1.vs_best_single.diff">+0.028</span>
+    <span class="k">ten predictors over one<br><span class="ci">95% CI <span data-n="study1.vs_best_single.ci_lo">-0.031</span> to <span data-n="study1.vs_best_single.ci_hi">+0.081</span></span></span>
+  </div>
+  <div class="stat">
+    <span class="v" data-n="calibration.bin_0.7_0.8.observed">28.2%</span>
+    <span class="k">bound, among designs predicted at <span data-n="calibration.bin_0.7_0.8.predicted">0.729</span></span>
+  </div>
+  <div class="stat">
+    <span class="v" data-n="study2.all_geometry.diff">-0.049</span>
+    <span class="k">from adding thirteen geometry metrics<br><span class="ci">95% CI <span data-n="study2.all_geometry.ci_lo">-0.091</span> to <span data-n="study2.all_geometry.ci_hi">-0.006</span></span></span>
+  </div>
+</div>
+
+<p>
+  Co-folding confidence beats a deliberately stupid baseline — hydrophobic
+  content alone — by
+  <span class="n up" data-n="study1.vs_baseline.diff">+0.172</span>
+  within-target AUROC
+  <span class="ci">(95% CI <span data-n="study1.vs_baseline.ci_lo">+0.077</span> to <span data-n="study1.vs_baseline.ci_hi">+0.273</span>, sign held in <span data-n="study1.vs_baseline.sign_held">100%</span> of bootstrap replicates)</span>.
+  That is a real signal and it is worth using.
+</p>
+
+<p>
+  Three things about it are less comfortable. <strong>Averaging ten structure
+  predictors is not measurably better than using one</strong>
+  (<span class="n" data-n="study1.vs_best_single.diff">+0.028</span>,
+  <span class="ci">CI <span data-n="study1.vs_best_single.ci_lo">-0.031</span> to <span data-n="study1.vs_best_single.ci_hi">+0.081</span></span>),
+  which is a tenfold saving in co-folding compute for no measurable loss of
+  ranking quality. <strong>Fitting a model over all the score columns is
+  worse</strong> than their plain average
+  (<span class="n" data-n="study1.vs_loto_model.diff">+0.034</span> in the
+  average's favour,
+  <span class="ci">CI <span data-n="study1.vs_loto_model.ci_lo">+0.004</span> to <span data-n="study1.vs_loto_model.ci_hi">+0.063</span></span>).
+  And <strong>the reliability curve inverts where the decision is actually
+  made</strong>: designs predicted at
+  <span class="n" data-n="calibration.bin_0.7_0.8.predicted">0.729</span>
+  bound only <span class="n down" data-n="calibration.bin_0.7_0.8.observed">28.2%</span>
+  of the time
+  <span class="ci">(n = <span data-n="calibration.bin_0.7_0.8.n">39</span>, CI <span data-n="calibration.bin_0.7_0.8.obs_lo">16.5%</span> to <span data-n="calibration.bin_0.7_0.8.obs_hi">43.8%</span>)</span>,
+  worse than mid-range predictions. Taking the top twenty by score spends the
+  budget in the least reliable part of the metric.
+</p>
+
+<figure>
+  <img src="figures/calibration.png" alt="Reliability curve: predicted probability against observed binder rate, with the curve turning downward above 0.6.">
+  <figcaption>
+    Look at the right-hand end. A calibrated score would follow the diagonal;
+    this one turns back on itself above 0.6. Expected calibration error is
+    <span class="n" data-n="calibration.ece">0.078</span>, which looks
+    respectable and hides the inversion entirely.
+  </figcaption>
+</figure>
+
+<figure>
+  <img src="figures/paired_differences.png" alt="Paired bootstrap differences between ranking metrics, each with a 95% confidence interval; two of them cross zero.">
+  <figcaption>
+    Every comparison as a paired difference with its interval, resampling
+    targets rather than designs. Only the bars clear of zero are claims; the
+    ones crossing it are the two conclusions an earlier version of this work
+    stated and then withdrew.
+  </figcaption>
+</figure>
+
+<p class="kicker">The second study</p>
+<h2>Interface geometry added nothing — in the form I tested</h2>
+
+<p>
+  Design pipelines also compute the geometry of the interface: buried surface
+  area, atom contacts, hydrogen bonds, charge and hydrophobic composition. It
+  is slower and more elaborate than reading off a confidence number. On
+  <span class="n" data-n="study2.n_designs">1189</span> designs with released
+  coordinates, <strong>not one of
+  <span class="n" data-n="study2.n_metrics">13</span> geometry metrics improved
+  a model that already had the confidence score</strong>;
+  <span class="n" data-n="study2.n_hurting">2</span> measurably hurt, and all
+  thirteen together scored
+  <span class="n down" data-n="study2.all_geometry.diff">-0.049</span> lower
+  <span class="ci">(CI <span data-n="study2.all_geometry.ci_lo">-0.091</span> to <span data-n="study2.all_geometry.ci_hi">-0.006</span>, sign held <span data-n="study2.all_geometry.sign_held">99%</span>)</span>.
+</p>
+
+<figure>
+  <img src="figures/geometry_conditional.png" alt="Change in AUROC when each geometry metric is added to a confidence-only model; all estimates sit at or below zero.">
+  <figcaption>
+    Change in held-out AUROC when each geometry metric is added to confidence.
+    Everything sits at or below zero, and the full set is furthest below it.
+  </figcaption>
+</figure>
+
+<div class="callout">
+  <span class="h">Where this argues with the literature</span>
+  <p>
+    <a href="https://doi.org/10.1101/2025.08.14.670059">Overath et&nbsp;al. (2025)</a>,
+    pooling 3,766 experimentally characterised binders, report the opposite:
+    confidence <strong>multiplied by</strong> interface &Delta;G per buried
+    area beats either on its own. I think they may well be right, for two
+    reasons that are both limits of my test rather than of theirs.
+  </p>
+  <p>
+    First, that feature is not among my thirteen. Second and more seriously,
+    their combination is a <em class="q">product</em> and my test adds geometry
+    as an extra <em class="q">linear</em> term — and a logistic model in
+    (confidence, geometry) cannot represent confidence &times; geometry unless
+    the interaction is handed to it explicitly. <strong>So I have not tested
+    their claim; I tested a weaker one.</strong> A null additive effect is
+    entirely compatible with a real multiplicative one.
+  </p>
+  <p>
+    The experiment that settles it is specified, pre-registered with its
+    decision rules, and costs no GPU time. Until it runs, the honest form of
+    this result is <em class="q">no additive effect for thirteen metrics</em>,
+    not <em class="q">geometry is useless</em>.
+  </p>
+</div>
+
+<p>
+  The same paper <strong>agrees</strong> with the first study on both of its
+  transferable conclusions: ipSAE-family confidence is the best single
+  predictor, and pooling features across predictors does not help. Independent
+  corroboration on three times the data is worth more than a novelty claim, so
+  it is worth saying plainly that this is not the first time the question has
+  been asked — only the first time it has been asked of this dataset, which is
+  one campaign, one rubric for calling a binder, and two independent labs
+  measuring the same molecules.
+</p>
+
+<p class="kicker">Method</p>
+<h2>Why the numbers are small and the intervals are wide</h2>
+
+<p>
+  Most of the effort here went into not fooling myself, and that is the part
+  worth reading.
+</p>
+
+<ul>
+  <li>
+    <strong>Grouped by target, always.</strong> Designs against the same target
+    are not independent — targets differ enormously in difficulty, from
+    <span class="n" data-n="per_target.egfr_base_rate">11.1%</span> binders on
+    EGFR upward. Every split holds out whole targets, and every AUROC is
+    computed inside a target and then averaged, so a metric cannot score well
+    merely by learning which targets are easy.
+  </li>
+  <li>
+    <strong>Paired bootstrap on identical resamples.</strong> Differences
+    between metrics are small. Scoring both metrics on the same resampled set
+    of targets removes the shared variance, which is the only way a
+    <span class="n">0.03</span> gap can be resolved at this sample size — and
+    it is what showed that two such gaps could not be.
+  </li>
+  <li>
+    <strong>A selection correction.</strong> The headline metric was the best
+    of <span class="n" data-n="study1.selection.n_screened">30</span>
+    screened, and a maximum over correlated candidates is biased upward.
+    Re-running the selection inside every replicate widens the interval to
+    <span class="n" data-n="study1.selection.ci_lo">0.689</span>&ndash;<span class="n" data-n="study1.selection.ci_hi">0.847</span>;
+    the nominal winner wins only
+    <span class="n" data-n="study1.selection.winner_stability">64%</span> of
+    replicates, and
+    <span class="n" data-n="study1.selection.distinct_winners">8</span>
+    different metrics win at least once.
+  </li>
+  <li>
+    <strong>The geometry code is validated, not assumed correct.</strong> The
+    release publishes its own contact counts for the same coordinate files, so
+    my implementation is checked against them:
+    <span class="n" data-n="validation.contacts_exact">981</span>/<span class="n" data-n="validation.n_compared">981</span>
+    exact agreement on atom contacts, and the same on epitope and paratope
+    residues. Getting there caught a real bug — several targets are not protein
+    only, and counting binder-to-RNA and binder-to-ligand pairs as interface
+    contacts inflated some designs
+    <span data-n="validation.bug_factor">by a factor of eighty</span>.
+    Fixing it moved
+    <span data-n="validation.before_bugfix">agreement from 95.5% to 100%</span>.
+  </li>
+</ul>
+
+<figure>
+  <img src="figures/per_target_auroc.png" alt="Per-target AUROC with confidence intervals; several intervals cross 0.5.">
+  <figcaption>
+    Per-target performance with intervals.
+    <span class="n" data-n="per_target.n_ci_includes_chance">4</span> of 14
+    include chance. This is why no score here is used as a hard filter.
+  </figcaption>
+</figure>
+
+<figure>
+  <img src="figures/auroc_pooled_vs_within.png" alt="Pooled AUROC compared with within-target AUROC for each metric.">
+  <figcaption>
+    Pooled against within-target AUROC for the same metrics. The gap is target
+    difficulty leaking into the score — the reason every number on this page is
+    the within-target one.
+  </figcaption>
+</figure>
+
+<figure>
+  <img src="figures/binder_rate_by_target.png" alt="Binder rate for each of the fifteen targets, ranging from near zero to over seventy percent.">
+  <figcaption>
+    Binder rate by target, from almost nothing to most of the plate. Pooling
+    across this is what produces Simpson's paradox, below.
+  </figcaption>
+</figure>
+
+<figure>
+  <img src="figures/geometry_per_target.png" alt="Best geometry metric compared with confidence, per target.">
+  <figcaption>
+    The best geometry metric against confidence, target by target. Confidence
+    wins almost everywhere; where geometry wins, the interval is too wide to
+    act on.
+  </figcaption>
+</figure>
+
+<p class="kicker">What I got wrong</p>
+<h2>Three corrections, kept in the record</h2>
+
+<p>
+  This section is here because it is the most informative part of the work. All
+  three were found by reading the output against itself or against the
+  literature, none by new data, and each is logged with the reason.
+</p>
+
+<h3>1. Two conclusions stated without the uncertainty they needed</h3>
+<p>
+  The first pass reported differences between metrics as facts while putting
+  intervals only on the individual values. Adding paired intervals withdrew
+  both: <em class="q">averaging ten predictors beats the best single one</em>
+  became <span class="n" data-n="study1.vs_best_single.diff">+0.028</span> with
+  a CI straddling zero, and
+  <em class="q">cross-predictor disagreement is usable signal</em> did not
+  survive being tested conditionally on the mean it correlates with. The
+  practical advice reversed: run one predictor, not ten.
+</p>
+
+<h3>2. A headline sentence that was Simpson's paradox</h3>
+<p>
+  The geometry report stated that designs which bound had <em>fewer</em>
+  contacts and <em>less</em> buried surface, and read a large contact patch as
+  marking an implausible pose. That comparison was pooled across targets, and
+  the targets with the biggest interfaces are the ones nobody could bind.
+  Computed inside each target, on the same file, every sign reverses:
+</p>
+
+<div class="tablewrap">
+<table>
+  <caption>Mean difference, binders minus non-binders, on the same 1,189 designs.</caption>
+  <thead>
+    <tr><th>Metric</th><th class="num">Pooled</th><th class="num">Within target</th><th class="num">Targets positive</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>interface atom contacts</td>
+      <td class="num down" data-n="pooled.contacts.pooled">-51.1</td>
+      <td class="num up" data-n="pooled.contacts.within">+31.2</td>
+      <td class="num"><span data-n="pooled.contacts.positive">9</span>/<span data-n="pooled.n_groups">14</span></td>
+    </tr>
+    <tr>
+      <td>buried surface area</td>
+      <td class="num down" data-n="pooled.bsa_total.pooled">-136.6</td>
+      <td class="num up" data-n="pooled.bsa_total.within">+72.8</td>
+      <td class="num"><span data-n="pooled.bsa_total.positive">9</span>/<span data-n="pooled.n_groups">14</span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  The study's actual conclusion was unaffected, because the conditional test
+  was within-target throughout — but the most quotable sentence in the report
+  contradicted its own table three paragraphs earlier. It is withdrawn, and
+  the code now returns the pooled and within-target differences together, with
+  a test that fails if any report sentence is generated from the pooled one.
+</p>
+
+<h3>3. A novelty claim that one literature search disproves</h3>
+<p>
+  Two documents in the repository claimed this question had not been asked
+  before. It had: see the comparison with Overath et&nbsp;al. above. The
+  accurate claim, which survives, is that there is no prior analysis of
+  <em>this dataset</em>. Saying
+  where my result conflicts with the literature, and which experiment would
+  settle it, is a stronger position than a novelty claim a reader can falsify
+  in one search.
+</p>
+
+<p class="kicker">Status</p>
+<h2>What this is not</h2>
+
+<ul>
+  <li>
+    <strong>No design here has been made or tested.</strong> Nothing has been
+    submitted anywhere. The pipeline runs end to end, but on hardware that
+    cannot currently generate a real backbone, so the generation stages are
+    mocked behind their interfaces and marked as such in every artefact they
+    touch.
+  </li>
+  <li>
+    <strong>The labels have a ceiling, and it is lower than people assume.</strong>
+    Of <span class="n" data-n="ceiling.n_measured_by_both">1235</span> designs
+    measured by two independent labs, they agree
+    <span class="n" data-n="ceiling.agreement">89.0%</span> of the time:
+    <span class="n" data-n="ceiling.both_bind">253</span> bind at both,
+    <span class="n" data-n="ceiling.neither_bind">846</span> at neither, and
+    <span class="n" data-n="ceiling.n_discordant">136</span> are called
+    differently. No in-silico metric can be shown to beat that.
+  </li>
+  <li>
+    <strong>The enrichment is modest.</strong> At the measured operating point
+    (threshold <span class="n" data-n="operating.threshold">0.635</span>),
+    <span class="n" data-n="operating.precision">46.3%</span> of selected
+    designs bound against a
+    <span class="n" data-n="study1.base_rate">26.8%</span> base rate —
+    about <span class="n" data-n="operating.enrichment">1.73x</span>. That
+    operating point was measured on a pool already filtered by this very
+    metric, so it will not transfer unchanged to an unscreened pipeline.
+  </li>
+  <li>
+    <strong>Most de novo designs fail.</strong> On EGFR, the campaign's own
+    binder rate was
+    <span class="n" data-n="per_target.egfr_base_rate">11.1%</span>
+    (<span data-n="per_target.egfr_binders">10</span> of
+    <span data-n="per_target.egfr_n">90</span>) with far more compute than I
+    have. Twenty designs at this enrichment implies an expectation of a few
+    binders, plausibly zero.
+  </li>
+</ul>
+
+<footer>
+  <p>
+    Derived from <code>studies/</code> in the source repository; every figure
+    on this page is a copy of one generated there, and every number is
+    resolved from a study output file by <code>portfolio/build.py</code> and
+    asserted against it by a test. Data: the openly licensed release of
+    1,440 designed binders with their in-silico scores and wet-lab outcomes.
+  </p>
+</footer>
+
+</div>
+</body>
+</html>
