@@ -343,9 +343,17 @@ def make_figures(
     FIG_DIR.mkdir(parents=True, exist_ok=True)
     written: list[str] = []
 
-    # 1. Pooled vs within-target AUROC, the central result.
-    top = single.sort_values("within_target_auroc", ascending=False).head(14)
-    fig, ax = plt.subplots(figsize=(9, 6))
+    # 1. Pooled vs within-target AUROC. Show the best performers AND the metrics
+    #    where the two disagree most, so the figure cannot imply a single
+    #    direction of bias that the data does not support.
+    ranked = single.copy()
+    ranked["gap"] = ranked["pooled_auroc"] - ranked["within_target_auroc"]
+    best = ranked.sort_values("within_target_auroc", ascending=False).head(9)
+    widest = ranked.reindex(ranked["gap"].abs().sort_values(ascending=False).index).head(5)
+    top = pd.concat([best, widest]).drop_duplicates(subset="feature")
+    top = top.sort_values("within_target_auroc", ascending=False)
+
+    fig, ax = plt.subplots(figsize=(9.5, 6.5))
     ypos = np.arange(len(top))
     ax.barh(
         ypos - 0.2, top["pooled_auroc"], height=0.38, label="pooled across targets", color="#8fb8de"
@@ -358,13 +366,26 @@ def make_figures(
         color="#d97757",
     )
     ax.axvline(0.5, color="black", lw=1, ls="--")
-    ax.text(0.505, len(top) - 0.6, "chance", fontsize=8, va="top")
+    ax.text(0.505, len(top) - 0.4, "chance", fontsize=8, va="top")
+    # Annotate the signed gap so the direction is legible metric by metric.
+    for i, (_, r) in enumerate(top.iterrows()):
+        ax.annotate(
+            f"{r['gap']:+.3f}",
+            (max(r["pooled_auroc"], r["within_target_auroc"]) + 0.008, i),
+            fontsize=7,
+            va="center",
+            color="#444444",
+        )
     ax.set_yticks(ypos)
     ax.set_yticklabels(top["feature"], fontsize=8)
     ax.invert_yaxis()
     ax.set_xlabel("AUROC for predicting measured binding")
     ax.set_xlim(0.3, 1.0)
-    ax.set_title("Pooled AUROC overstates what a metric does within one target")
+    ax.set_title(
+        "Pooled vs within-target AUROC\n"
+        "signed gap annotated: the bias runs both ways and is metric-specific",
+        fontsize=11,
+    )
     ax.legend(loc="lower right", fontsize=8)
     fig.tight_layout()
     fig.savefig(FIG_DIR / "auroc_pooled_vs_within.png", dpi=150)
